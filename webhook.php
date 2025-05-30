@@ -1,4 +1,8 @@
 <?php
+//errores php
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+
 // Constantes de configuración (considera moverlas a un archivo .env o config.php en producción)
 const TOKEN_SPACONSENTIDOS = "CONSENTIDOSPORMAYMETA"; // Tu token de verificación de Webhook
 const WEBHOOK_URL = "whatsappapi.spaconsentidos.website/webhook.php"; // URL de la API de WhatsApp
