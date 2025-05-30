@@ -1,8 +1,7 @@
 <?php
 // Constantes de configuración (considera moverlas a un archivo .env o config.php en producción)
-const TOKEN_ANDERCODE = "ANDERCODEPHPAPIMETA"; // Tu token de verificación de Webhook
-const WHATSAPP_TOKEN = "TU_TOKEN_DE_FACEBOOK"; // Tu token de acceso de la API de WhatsApp Business
-const WHATSAPP_URL = "https://graph.facebook.com/v15.0/TU_NUMERO_ID/messages"; // URL de la API de WhatsApp
+const TOKEN_ANDERCODE = "CONSENTIDOSPORMAYMETA"; // Tu token de verificación de Webhook
+const WEBHOOK_URL = "whatsappapi.spaconsentidos.website/webhook.php"; // URL de la API de WhatsApp
 
 // Definición de servicios principales
 const SERVICIOS_PRINCIPALES = [
