@@ -1,0 +1,9 @@
+<Files "webhook.php">
+    Require all granted
+</Files>
+
+# Asegura que el acceso esté permitido
+Options +FollowSymLinks
+RewriteEngine On
+RewriteCond %{HTTPS} off
+RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
