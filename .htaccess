@@ -1,8 +1,0 @@
-<Files "webhook.php">
-    Require all granted
-    Order allow,deny
-    Allow from all
-</Files>
-
-Options +FollowSymLinks
-RewriteEngine On
