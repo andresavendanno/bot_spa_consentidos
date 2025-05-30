@@ -1,8 +1,26 @@
 <?php
 // Constantes de configuración (considera moverlas a un archivo .env o config.php en producción)
-const TOKEN_ANDERCODE = "CONSENTIDOSPORMAYMETA"; // Tu token de verificación de Webhook
+const TOKEN_SPACONSENTIDOS = "CONSENTIDOSPORMAYMETA"; // Tu token de verificación de Webhook
 const WEBHOOK_URL = "whatsappapi.spaconsentidos.website/webhook.php"; // URL de la API de WhatsApp
 
+require_once("config/conexion.php");
+require_once("models/Registro.php");
+require_once("models/Usuario.php");
+function verificarToken($req,$res){
+    try{
+        $token = $req['hub_verify_token'];
+        $challenge = $req['hub_challenge'];
+
+        if (isset($challenge) && isset($token) && $token == TOKEN_SPACONSENTIDOS){
+            $res->send($challenge);
+        }else{
+            $res ->status(400)->send();
+        }
+
+    }catch(Exception $e){
+            $res ->status(400)->send();
+    }
+}
 // Definición de servicios principales
 const SERVICIOS_PRINCIPALES = [
     "Baño (corte higiénico, uñas, oídos)",
@@ -672,7 +690,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
     echo "EVENT_RECEIVED";
 } elseif ($_SERVER['REQUEST_METHOD'] === 'GET') {
-    if (isset($_GET['hub_mode']) && $_GET['hub_mode'] === 'subscribe' && isset($_GET['hub_verify_token']) && $_GET['hub_verify_token'] === TOKEN_ANDERCODE) {
+    if (isset($_GET['hub_mode']) && $_GET['hub_mode'] === 'subscribe' && isset($_GET['hub_verify_token']) && $_GET['hub_verify_token'] === TOKEN_SPACONSENTIDOS) {
         echo $_GET['hub_challenge'];
     } else {
         http_response_code(403);
