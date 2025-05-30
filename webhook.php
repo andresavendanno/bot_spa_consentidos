@@ -7,9 +7,6 @@ ini_set('display_errors', 1);
 const TOKEN_SPACONSENTIDOS = "CONSENTIDOSPORMAYMETA"; // Tu token de verificación de Webhook
 const WEBHOOK_URL = "whatsappapi.spaconsentidos.website/webhook.php"; // URL de la API de WhatsApp
 
-require_once("config/conexion.php");
-require_once("models/Registro.php");
-require_once("models/Usuario.php");
 function verificarToken($req,$res){
     try{
         $token = $req['hub_verify_token'];
