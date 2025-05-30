@@ -4,7 +4,7 @@
 const TOKEN_SPACONSENTIDOS = "CONSENTIDOSPORMAYMETA"; // Tu token de verificación de Webhook
 const WEBHOOK_URL = "whatsappapi.spaconsentidos.website/webhook.php"; // URL de la API de WhatsApp
 const WHATSAPP_TOKEN = "EAAUZAHdaMZB7sBO60GaxGb3mZAyJEpAOehuZCJamZAwOkqhEM0MRcZA6CrTc5HQiQaiyIQ26AKoagKzMZBesmHDuYH8ai2BcxoZBXUd55ab556TzIoi07xFKntC4pHwDjU04n7sy45SS4kZBZBUPThWHbjHtMwqRQqKnXlN8lflJjKZAeN3CWsCQQrDYNtXzKuqKZAcZCHkS2U9aMxl3AAoZAZCmZAbyVf5U8ZCpiQ1LzpdjYxbCAdpWf";
-const WHATSAPP_URL = "https://graph.facebook.com/v22.0/646389751893147/messages"
+const WHATSAPP_URL = "https://graph.facebook.com/v22.0/646389751893147/messages";
 
 function verificarToken($req,$res){
     try{
