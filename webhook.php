@@ -66,16 +66,7 @@ function recibirMensajes($req) {
         $comentario = strtolower($mensaje['text']['body'] ?? '');
         $numero = $mensaje['from'] ?? '';
 
-        if (!empty($comentario) && !empty($numero)) {
-            $registro = new Registro();
-            $respuesta = $registro->procesarPaso($numero, $comentario);
-            EnviarMensajeWhastapp($respuesta, $numero);
-        }
-
-
-
-
-        // Validación básica
+            // Validación básica
         if (empty($comentario) || empty($numero) || empty($idMensaje)) return;
 
         // Verificar si ya se procesó este mensaje
@@ -87,12 +78,16 @@ function recibirMensajes($req) {
         // Marcar mensaje como procesado
         marcarMensajeComoProcesado($idMensaje);
         limpiarMensajesProcesados();
-
+        
         // Log del mensaje recibido
         file_put_contents("log.txt", "[".date("Y-m-d H:i:s")."] Mensaje de $numero: $comentario".PHP_EOL, FILE_APPEND);
 
         // Procesar mensaje
-        EnviarMensajeWhastapp($comentario, $numero);
+        if (!empty($comentario) && !empty($numero)) {
+            $registro = new Registro();
+            $respuesta = $registro->procesarPaso($numero, $comentario);
+            EnviarMensajeWhastapp($respuesta, $numero);
+        }
         // agregar a base de datos
         $registro = new Registro();
         $registro->insert_registro($numero,$comentario);
