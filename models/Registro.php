@@ -1,19 +1,20 @@
 <?php
-require_once("config/conexion.php");
-
 class Registro extends Conectar {
 
-    public function insert_log($numero, $texto) {
+    public function insert_registro($log_numero, $log_texto) {
         try {
+            file_put_contents("log.txt", "[".date("Y-m-d H:i:s")."] insert_registro llamado con: $log_numero - $log_texto" . PHP_EOL, FILE_APPEND);
+
             $conectar = parent::conexion();
             parent::set_names();
+
             $sql = "INSERT INTO tm_log (log_numero, log_texto, fech_crea) VALUES (?, ?, now())";
             $stmt = $conectar->prepare($sql);
-            $stmt->bindValue(1, $numero);
-            $stmt->bindValue(2, $texto);
+            $stmt->bindValue(1, $log_numero);
+            $stmt->bindValue(2, $log_texto);
             $stmt->execute();
         } catch (Exception $e) {
-            file_put_contents("error_log.txt", "[insert_log] " . $e->getMessage() . PHP_EOL, FILE_APPEND);
+            file_put_contents("error_log.txt", "Error insertando en DB: " . $e->getMessage() . PHP_EOL, FILE_APPEND);
         }
     }
 
@@ -22,71 +23,74 @@ class Registro extends Conectar {
             $conectar = parent::conexion();
             parent::set_names();
 
-            $stmt = $conectar->prepare("SELECT * FROM usuarios_temp WHERE numero = ?");
+            $stmt = $conectar->prepare("SELECT * FROM usuario WHERE numero = ?");
             $stmt->execute([$numero]);
             $usuario = $stmt->fetch(PDO::FETCH_ASSOC);
 
             if (!$usuario) {
-                $stmt = $conectar->prepare("INSERT INTO usuarios_temp (numero, paso) VALUES (?, 1)");
+                $stmt = $conectar->prepare("INSERT INTO usuario (numero, paso, fecha_creacion) VALUES (?, 1, now())");
                 $stmt->execute([$numero]);
-                return "¿Cómo se llama tu consentido?";
+                return "¿Cuál es el nombre de tu consentido?";
             }
 
-            $paso = (int)$usuario['paso'];
+            $paso = intval($usuario['paso']);
 
             switch ($paso) {
                 case 1:
-                    $this->actualizarPaso($numero, 'consentido', $mensaje, 2);
-                    return "¿Qué raza es {$mensaje}?";
+                    $stmt = $conectar->prepare("UPDATE usuario SET consentido = ?, paso = 2 WHERE numero = ?");
+                    $stmt->execute([$mensaje, $numero]);
+                    return "¿Qué raza es *{$mensaje}*?";
+
                 case 2:
-                    $this->actualizarPaso($numero, 'raza', $mensaje, 3);
-                    return "¿Qué peso tiene tu consentido?";
+                    $stmt = $conectar->prepare("UPDATE usuario SET raza = ?, paso = 3 WHERE numero = ?");
+                    $stmt->execute([$mensaje, $numero]);
+                    return "¿Qué peso tiene *{$usuario['consentido']}*? (por favor en kg)";
+
                 case 3:
-                    $this->actualizarPaso($numero, 'peso', $mensaje, 4);
-                    return "¿Cuánto tiempo ha pasado desde su último baño?";
+                    $stmt = $conectar->prepare("UPDATE usuario SET peso = ?, paso = 4 WHERE numero = ?");
+                    $stmt->execute([$mensaje, $numero]);
+                    return "¿Hace cuánto fue su último baño?\n\n1. Menos de 1 mes\n2. Entre 1 y 3 meses\n3. Más de 3 meses\n\nEscribe el número de opción.";
+
                 case 4:
-                    $this->actualizarPaso($numero, 'ultimo_bano', $mensaje, 5);
-                    return "¿Qué edad tiene?";
+                    $opciones_bano = ["1" => "Menos de 1 mes", "2" => "Entre 1 y 3 meses", "3" => "Más de 3 meses"];
+                    $respuesta = $opciones_bano[$mensaje] ?? null;
+                    if (!$respuesta) return "Por favor responde con 1, 2 o 3.";
+                    $stmt = $conectar->prepare("UPDATE usuario SET ultimo_bano = ?, paso = 5 WHERE numero = ?");
+                    $stmt->execute([$respuesta, $numero]);
+                    return "¿Qué edad tiene?\n\n1. Menos de 5 años\n2. Entre 5 y 9 años\n3. 10 años o más\n\nEscribe el número de opción.";
+
                 case 5:
-                    $edad = (int)$mensaje;
-                    $this->actualizarPaso($numero, 'edad', $edad, 6);
-                    $aviso = $edad > 9
-                        ? "Para consentidos gerontes solo atendemos en el horario de las 10h debido a que suelen estresarse más y nuestra prioridad es que tengan muy buena experiencia.\n"
-                        : "";
-                    return $aviso . "¿Tienes algún comentario adicional? (Alergias, heridas, etc)";
+                    $opciones_edad = ["1" => "Menos de 5 años", "2" => "Entre 5 y 9 años", "3" => "10 años o más"];
+                    $respuesta = $opciones_edad[$mensaje] ?? null;
+                    if (!$respuesta) return "Por favor responde con 1, 2 o 3.";
+
+                    $stmt = $conectar->prepare("UPDATE usuario SET edad = ?, paso = 6 WHERE numero = ?");
+                    $stmt->execute([$respuesta, $numero]);
+
+                    if ($mensaje == "3") {
+                        return "🐾 Para consentidos gerontes solo atendemos en el horario de las *10h* debido a que suelen estresarse más. Nuestra prioridad es que tengan una muy buena experiencia. 😊\n\n¿Deseas contarnos algo adicional? Alergias, heridas, etc.";
+                    } else {
+                        return "¿Deseas contarnos algo adicional? Alergias, heridas, etc.";
+                    }
+
                 case 6:
-                    $this->actualizarPaso($numero, 'comentario', $mensaje, 7);
-                    return "¿Cuál es tu nombre?";
+                    $stmt = $conectar->prepare("UPDATE usuario SET comentario = ?, paso = 7 WHERE numero = ?");
+                    $stmt->execute([$mensaje, $numero]);
+                    return "Por último, ¿cuál es tu nombre como tutor/a?";
+
                 case 7:
-                    $this->actualizarPaso($numero, 'tutor', $mensaje, 8);
-                    $this->moverAFinal($numero);
-                    return "¡Gracias por registrar a tu consentido 🐶! Hemos guardado toda la información. Te contactaremos pronto 🛁.";
+                    $stmt = $conectar->prepare("UPDATE usuario SET tutor = ?, paso = 8 WHERE numero = ?");
+                    $stmt->execute([$mensaje, $numero]);
+
+                    return "¡Gracias! Hemos registrado todos los datos de tu consentido 🐶🐾. En breve nos pondremos en contacto contigo. 🙌";
+
                 default:
-                    return "¡Gracias! Ya hemos terminado. Si necesitas actualizar algo, escríbenos nuevamente.";
+                    return "¡Hola! Ya tenemos tus datos. Si deseas reiniciar el proceso, escribe *reiniciar*.";
             }
         } catch (Exception $e) {
-            file_put_contents("error_log.txt", "[procesarPaso] " . $e->getMessage() . PHP_EOL, FILE_APPEND);
-            return "Ocurrió un error. Por favor intenta más tarde.";
+            file_put_contents("error_log.txt", "Error procesando paso: " . $e->getMessage() . PHP_EOL, FILE_APPEND);
+            return "Lo sentimos, ha ocurrido un error. Intenta nuevamente más tarde.";
         }
-    }
-
-    private function actualizarPaso($numero, $campo, $valor, $siguientePaso) {
-        $conectar = parent::conexion();
-        $sql = "UPDATE usuarios_temp SET $campo = ?, paso = ? WHERE numero = ?";
-        $stmt = $conectar->prepare($sql);
-        $stmt->execute([$valor, $siguientePaso, $numero]);
-    }
-
-    private function moverAFinal($numero) {
-        $conectar = parent::conexion();
-
-        $conectar->prepare("
-            INSERT INTO usuarios_final (numero, consentido, raza, peso, ultimo_bano, edad, comentario, tutor, fecha_creacion)
-            SELECT numero, consentido, raza, peso, ultimo_bano, edad, comentario, tutor, fecha_creacion
-            FROM usuarios_temp WHERE numero = ?
-        ")->execute([$numero]);
-
-        $conectar->prepare("DELETE FROM usuarios_temp WHERE numero = ?")->execute([$numero]);
     }
 }
 ?>
