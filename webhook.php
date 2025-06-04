@@ -4,23 +4,21 @@
     const TOKEN_SPACONSENTIDOS = "CONSENTIDOSPORMAYMETA"; // Tu token de verificación de Webhook
     const WEBHOOK_URL = "whatsappapi.spaconsentidos.website/webhook.php"; // URL de la API de WhatsApp
     const WHATSAPP_TOKEN = "EAAUZAHdaMZB7sBOyH4Xpakb17bhqV9FaZC9C9PlO9NSZAJeE2leEGK7x8ufZC5Vc23JtXBQKKk1DyxKFzTUX1J8xc5peicJpZC5w8kgZBKG2z90VCoDrk5YMDoEKLEgZA0cq85jEWvRoGu3WfM50t2gju3gAB0xML1VW4qMbiYZCOcgpsxAJoFoJWI4HdWyKZCMgZDZD";
- // pendiente de token permanente   
     const WHATSAPP_URL = "https://graph.facebook.com/v22.0/646389751893147/messages";
     const TU_CLAVE = "CONSENTIDOSPORMAmeta05";
 
 // Funciones de control de duplicados y limpieza de base
-function mensajeYaProcesado($id) {
+    function mensajeYaProcesado($id) {
     $archivo = 'mensajes_procesados.txt';
     if (!file_exists($archivo)) return false;
     $procesados = file($archivo, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
     return in_array($id, $procesados);
-}
-
-function marcarMensajeComoProcesado($id) {
+    }
+    function marcarMensajeComoProcesado($id) {
     file_put_contents('mensajes_procesados.txt', $id . PHP_EOL, FILE_APPEND);
-}
+    }
 
-function limpiarMensajesProcesados($max = 5000) {
+    function limpiarMensajesProcesados($max = 5000) {
     $archivo = 'mensajes_procesados.txt';
     if (!file_exists($archivo)) return;
 
@@ -31,7 +29,7 @@ function limpiarMensajesProcesados($max = 5000) {
         $lineasRecortadas = array_slice($lineas, -$max); // conserva solo los más recientes
         file_put_contents($archivo, implode(PHP_EOL, $lineasRecortadas) . PHP_EOL);
     }
-}
+    }
 
 //BASES DE DATOS CONECTADAS, CLIENTES (CLIENTE Y ESTADO) prueba ahora solo con log
    require_once("config/conexion.php");
@@ -51,8 +49,8 @@ function limpiarMensajesProcesados($max = 5000) {
         }
     } catch(Exception $e){
         $res->status(400)->send();
+        }
     }
-}
 // Recibir mensjae (acá se construye la logica de consultar la base y tomar los datos del usuario para registrarlo en bases de datos)
 function recibirMensajes($req) {
     try {
@@ -65,8 +63,17 @@ function recibirMensajes($req) {
         $mensaje = $objetomensaje[0];
 
         $idMensaje = $mensaje['id'] ?? null;
-        $comentario = $mensaje['text']['body'] ?? '';
+        $comentario = strtolower($mensaje['text']['body'] ?? '');
         $numero = $mensaje['from'] ?? '';
+
+        if (!empty($comentario) && !empty($numero)) {
+            $registro = new Registro();
+            $respuesta = $registro->procesarPaso($numero, $comentario);
+            EnviarMensajeWhastapp($respuesta, $numero);
+        }
+
+
+
 
         // Validación básica
         if (empty($comentario) || empty($numero) || empty($idMensaje)) return;
