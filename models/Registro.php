@@ -27,10 +27,13 @@ class Registro extends Conectar {
             $usuario = $stmt->fetch(PDO::FETCH_ASSOC);
 
             if (!$usuario) {
-                $stmt = $conectar->prepare("INSERT INTO usuarios_temp (numero, paso, fecha_creacion) VALUES (?, 1, now())");
-                $stmt->execute([$numero]);
-                return "¿Cómo se llama tu consentido?";
+                 $stmt = $conectar->prepare("INSERT INTO usuarios_temp (numero, paso, fecha_creacion) VALUES (?, 1, now())");
+                 $stmt->execute([$numero]);
+                 return "¡Hola soy Botita! ¡Bienvenido a Spa Consentidos! Veo que eres nuevo. Para registrar a tu consentido, por favor dime su nombre.";
+            } elseif ((int)$usuario['paso'] === 1 && empty($usuario['consentido'])) {
+                    return "¡Hola soy Botita! ¡Bienvenido a Spa Consentidos! Veo que eres nuevo. Para registrar a tu consentido, por favor dime su nombre.";
             }
+
 
             $paso = (int)$usuario['paso'];
 
