@@ -34,9 +34,9 @@ function limpiarMensajesProcesados($max = 5000) {
 }
 
 //BASES DE DATOS CONECTADAS, CLIENTES (CLIENTE Y ESTADO) prueba ahora solo con log
-   // require_once("config/conexion.php");
-    //require_once("models/Registro.php");
-    //require_once("models/Usuario.php");
+   require_once("config/conexion.php");
+   require_once("models/Registro.php");
+   require_once("models/Usuario.php");
 
 //verificar token
     function verificarToken($req, $res){
