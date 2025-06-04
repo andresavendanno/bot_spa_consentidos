@@ -6,7 +6,7 @@
 
         protected function conexion(){
             try{
-                $host = 'spaconsentidos.website';         // o mysql.hostinger.com o localhost
+                $host = 'localhost';         // o mysql.hostinger.com o localhost
                 $dbname = 'u268007922_clientes';
                 $usuario = 'u268007922_spaconsentidos';
                 $clave = 'CONSENTIDOSPORMAmeta05';
