@@ -52,7 +52,7 @@
         }
     }
 // Recibir mensjae (acá se construye la logica de consultar la base y tomar los datos del usuario para registrarlo en bases de datos)
-function recibirMensajes($req) {
+    function recibirMensajes($req) {
     try {
         if (!isset($req['entry'][0]['changes'][0]['value']['messages'])) return;
 
