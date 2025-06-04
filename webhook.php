@@ -101,23 +101,23 @@
 }
 
 // Enviar mensaje por WhatsApp
-function EnviarMensajeWhastapp($comentario, $numero){
-    $comentario = strtolower($comentario);
+function EnviarMensajeWhastapp($mensaje, $numero) {
+    $registro = new Registro();
+    
+    // Procesar el mensaje con la lógica del bot
+    $respuesta = $registro->procesarPaso($numero, $mensaje);
 
-    if (strpos($comentario, 'hola') !== false){
+    if ($respuesta) {
         $data = json_encode([
-            "messaging_product" => "whatsapp",    
+            "messaging_product" => "whatsapp",
             "recipient_type" => "individual",
             "to" => $numero,
             "type" => "text",
             "text" => [
                 "preview_url" => false,
-                "body" => "¡Hola! ¡Bienvenido a Spa Consentidos! Veo que eres nuevo. Para registrar a tu consentido, por favor dime su nombre"
+                "body" => $respuesta
             ]
         ]);
-    } else {
-        return;
-    }
 
     $options = [
         'http' => [
