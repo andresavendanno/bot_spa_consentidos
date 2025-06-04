@@ -52,7 +52,7 @@
         }
     }
 // Recibir mensjae (acá se construye la logica de consultar la base y tomar los datos del usuario para registrarlo en bases de datos)
-    function recibirMensajes($req) {
+function recibirMensajes($req) {
     try {
         if (!isset($req['entry'][0]['changes'][0]['value']['messages'])) return;
 
@@ -91,26 +91,20 @@
         // agregar a base de datos
         $registro = new Registro();
         $registro->insert_registro($numero,$comentario);
-        
-        $respuesta_bot = $registro->procesarPaso($numero_remitente, $comentario_usuario); //
 
-        // ¡ESTE ES EL PUNTO CLAVE! Envía la respuesta generada por procesarPaso
-        if (!empty($respuesta_bot)) {
-            EnviarMensajeWhastapp($respuesta_bot, $numero_remitente); // <-- ¡Importante!
-            file_put_contents("log.txt", "[".date("Y-m-d H:i:s")."] Solicitado envio de respuesta a $numero_remitente: '$respuesta_bot'".PHP_EOL, FILE_APPEND);
-        } else {
-            file_put_contents("log.m.txt", "[".date("Y-m-d H:i:s")."] procesarPaso devolvio respuesta vacia para $numero_remitente".PHP_EOL, FILE_APPEND);
-}
     }
         //plan B si sigue el blucle de event recibed 
     
     catch (Exception $e) {
         file_put_contents("log.txt", "[".date("Y-m-d H:i:s")."] Error: ".$e->getMessage().PHP_EOL, FILE_APPEND);
     }
-    }
+}
 
 // Enviar mensaje por WhatsApp
 function EnviarMensajeWhastapp($comentario, $numero){
+    $comentario = strtolower($comentario);
+
+    if (strpos($comentario, 'hola') !== false){
         $data = json_encode([
             "messaging_product" => "whatsapp",    
             "recipient_type" => "individual",
@@ -118,7 +112,7 @@ function EnviarMensajeWhastapp($comentario, $numero){
             "type" => "text",
             "text" => [
                 "preview_url" => false,
-                "body" => $comentario
+                "body" => "¡Hola! ¡Bienvenido a Spa Consentidos! Veo que eres nuevo. Para registrar a tu consentido, por favor dime su nombre"
             ]
         ]);
     } else {
