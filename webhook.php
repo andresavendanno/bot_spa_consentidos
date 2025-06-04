@@ -90,7 +90,7 @@ function recibirMensajes($req) {
         $registro = new Registro();
         $registro->insert_registro($numero,$comentario);
 
-    } 
+    }
         //plan B si sigue el blucle de event recibed 
     
     catch (Exception $e) {
