@@ -9,7 +9,7 @@
 
         protected function conexion(){
             try{
-                $conectar = $this->dbh = new PDO("mysql:local=localhost;dbname=$dbname","$usuario","$clave");
+                $conectar = $this->dbh = new PDO("mysql:host=localhost;dbname=$dbname","$usuario","$clave");
                 return $conectar;
             }catch(Exception $e){
                 print "Error BD:" . $e->getMessage() . "<br>";
