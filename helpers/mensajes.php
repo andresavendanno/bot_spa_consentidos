@@ -58,7 +58,7 @@ function recibirMensajes($req) {
             file_put_contents("log.txt", "[DEBUG] Procesando paso con Registro.php\n", FILE_APPEND);
             $registro = new Registro();
             $respuesta = $registro->procesarPaso($numero, $comentario);
-            $registro->insert_registro($numero, $comentario);
+            $registro->insert_log($numero, $comentario);
         }
 
         file_put_contents("log.txt", "[DEBUG] Respuesta recibida para envío: ".print_r($respuesta, true)."\n", FILE_APPEND);

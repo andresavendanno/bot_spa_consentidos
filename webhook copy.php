@@ -96,7 +96,7 @@ function recibirMensajes($req) {
 }
 
 // Enviar mensaje por WhatsApp
-function EnviarMensajeWhastapp($respuesta, $numero) {
+function EnviarMensajeWhastApp($respuesta, $numero) {
     if (!$respuesta) return;
 
     $data = json_encode([
