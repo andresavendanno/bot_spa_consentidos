@@ -19,7 +19,6 @@ class Registro extends Conectar {
     }
 
     public function procesarPaso($numero, $mensaje, $tipoMensaje = "text") {
-
         try {
             if (!is_string($mensaje)) {
                 $mensaje = '';
@@ -30,6 +29,7 @@ class Registro extends Conectar {
             $conectar = parent::conexion();
             parent::set_names();
 
+            // Si ya está registrado definitivamente
             $stmt = $conectar->prepare("SELECT 1 FROM usuarios_final WHERE numero = ?");
             $stmt->execute([$numero]);
             if ($stmt->fetch()) {
@@ -37,13 +37,16 @@ class Registro extends Conectar {
                 return "¡Hola nuevamente! Ya registramos a tu consentido. Si necesitas hacer cambios, háznoslo saber.";
             }
 
+            // Buscar si tiene registro temporal en curso
             $stmt = $conectar->prepare("SELECT * FROM usuarios_temp WHERE numero = ?");
             $stmt->execute([$numero]);
             $usuario = $stmt->fetch(PDO::FETCH_ASSOC);
 
-           if (!$usuario || $mensaje === "inicio_manual") {
+            // Nuevo registro o reinicio manual
+            if (!$usuario || $mensaje === "inicio_manual") {
                 file_put_contents("error_log.txt", "[procesarPaso][DEBUG] Usuario nuevo o inicio manual, creando registro en usuarios_temp\n", FILE_APPEND);
 
+                // Siempre insertamos uno nuevo (permitiendo múltiples consentidos)
                 $stmt = $conectar->prepare("INSERT INTO usuarios_temp (numero, paso, fecha_creacion) VALUES (?, 1, now())");
                 $stmt->execute([$numero]);
 
@@ -55,8 +58,6 @@ class Registro extends Conectar {
                     return "¡Hola soy BOTita 🐾! ¡Gracias por comunicarte con Spa Consentidos! Veo que eres nuevo. Para registrar a tu consentido, nos gustaría saber su nombre 😊";
                 }
             }
-
-
 
             $paso = (int)$usuario['paso'];
 
@@ -97,15 +98,11 @@ class Registro extends Conectar {
 
                 case 7:
                     $mensaje_limpio = strtolower(trim($mensaje));
-
-                    // Solo permitimos avanzar si es "sin foto" o si es una imagen (mensaje tipo imagen)
                     if ($mensaje_limpio === "sin foto" || $tipoMensaje === "image") {
-                        $this->actualizarSoloPaso($numero, 8); // No se guarda el contenido
+                        $this->actualizarSoloPaso($numero, 8); // No se guarda imagen/texto
                         return "¿Cuál es tu nombre?";
                     }
-
                     return "Si deseas continuar sin foto, responde con *Sin foto*. O bien, envía una imagen.";
-
 
                 case 8:
                     $this->actualizarPaso($numero, 'tutor', $mensaje, 9);
