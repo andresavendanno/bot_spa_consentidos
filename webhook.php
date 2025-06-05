@@ -85,7 +85,25 @@ function recibirMensajes($req) {
         if ($usuario->esUsuarioRegistrado($numero)) {
             $respuesta = $usuario->procesarPaso($numero, $comentario);
         } else {
-            $respuesta = $registro->procesarPaso($numero, $comentario);
+            // Conexión a la BD
+            $conectar = new Conectar();
+            $conexion = $conectar->conexion();
+            $conectar->set_names();
+
+            // Verificar si el número ya está registrado
+            $stmt = $conexion->prepare("SELECT 1 FROM usuarios_final WHERE numero = ?");
+            $stmt->execute([$numero]);
+
+            if ($stmt->fetch()) {
+                // Usuario registrado: usa lógica de Usuario.php
+                $usuario = new Usuario();
+                $respuesta = $usuario->procesarPaso($numero, $comentario);
+            } else {
+                // Usuario no registrado: usa flujo de Registro
+                $registro = new Registro();
+                $respuesta = $registro->procesarPaso($numero, $comentario);
+            }
+
         }
         EnviarMensajeWhastapp($respuesta, $numero);
 
