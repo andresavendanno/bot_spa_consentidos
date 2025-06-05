@@ -29,6 +29,13 @@ class Registro extends Conectar {
             $conectar = parent::conexion();
             parent::set_names();
 
+            // 🔁 PRIORIDAD: si el mensaje es inicio_manual, iniciar nuevo registro SIEMPRE
+            if ($mensaje === "inicio_manual") {
+                $stmt = $conectar->prepare("INSERT INTO usuarios_temp (numero, paso, fecha_creacion) VALUES (?, 1, now())");
+                $stmt->execute([$numero]);
+                $this->insert_log($numero, "Paso 1 reiniciado manualmente");
+                return "¡Perfecto! Vamos a registrar a otro consentido 🐶🐱. ¿Cuál es su nombre?";
+            }
             // Si ya está registrado definitivamente
             $stmt = $conectar->prepare("SELECT 1 FROM usuarios_final WHERE numero = ?");
             $stmt->execute([$numero]);
@@ -41,23 +48,6 @@ class Registro extends Conectar {
             $stmt = $conectar->prepare("SELECT * FROM usuarios_temp WHERE numero = ?");
             $stmt->execute([$numero]);
             $usuario = $stmt->fetch(PDO::FETCH_ASSOC);
-
-            // Nuevo registro o reinicio manual
-            if (!$usuario || $mensaje === "inicio_manual") {
-                file_put_contents("error_log.txt", "[procesarPaso][DEBUG] Usuario nuevo o inicio manual, creando registro en usuarios_temp\n", FILE_APPEND);
-
-                // Siempre insertamos uno nuevo (permitiendo múltiples consentidos)
-                $stmt = $conectar->prepare("INSERT INTO usuarios_temp (numero, paso, fecha_creacion) VALUES (?, 1, now())");
-                $stmt->execute([$numero]);
-
-                $this->insert_log($numero, "Paso 1 iniciado");
-
-                if ($mensaje === "inicio_manual") {
-                    return "¡Perfecto! Vamos a registrar a otro consentido 🐶🐱. ¿Cuál es su nombre?";
-                } else {
-                    return "¡Hola soy BOTita 🐾! ¡Gracias por comunicarte con Spa Consentidos! Veo que eres nuevo. Para registrar a tu consentido, nos gustaría saber su nombre 😊";
-                }
-            }
 
             $paso = (int)$usuario['paso'];
 
