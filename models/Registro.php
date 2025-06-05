@@ -4,7 +4,7 @@ require_once("config/conexion.php");
 class Registro extends Conectar {
 
     public function insert_log($numero, $texto) {
-        file_put_contents("error_log.txt", "[insert_log][EXITO] Numero: $numero, Texto: $texto" . PHP_EOL, FILE_APPEND);
+        file_put_contents("error_log.txt", "[insert_log][INFO] Numero: $numero, Texto: $texto" . PHP_EOL, FILE_APPEND);
         try {
             $conectar = parent::conexion();
             parent::set_names();
@@ -20,6 +20,7 @@ class Registro extends Conectar {
 
     public function procesarPaso($numero, $mensaje) {
         try {
+            file_put_contents("log.txt", "[DEBUG][Registro] procesarPaso iniciado con numero: $numero y mensaje: $mensaje\n", FILE_APPEND);
             $this->insert_log($numero, "Mensaje recibido: " . $mensaje);
 
             $conectar = parent::conexion();
@@ -29,6 +30,7 @@ class Registro extends Conectar {
             $stmt = $conectar->prepare("SELECT 1 FROM usuarios_final WHERE numero = ?");
             $stmt->execute([$numero]);
             if ($stmt->fetch()) {
+                file_put_contents("log.txt", "[DEBUG][Registro] Usuario ya registrado en usuarios_final\n", FILE_APPEND);
                 return "¡Hola nuevamente! Ya registramos a tu consentido. Si quieres actualizar algo, por favor háznoslo saber.";
             }
 
@@ -37,12 +39,14 @@ class Registro extends Conectar {
             $usuario = $stmt->fetch(PDO::FETCH_ASSOC);
 
             if (!$usuario) {
+                file_put_contents("log.txt", "[DEBUG][Registro] Usuario nuevo, iniciando paso 1\n", FILE_APPEND);
                 $stmt = $conectar->prepare("INSERT INTO usuarios_temp (numero, paso, fecha_creacion) VALUES (?, 1, now())");
                 $stmt->execute([$numero]);
                 return "¡Hola soy BOTita 🐾! ¡Gracias por comunicarte con Spa Consentidos! Veo que eres nuevo. Para registrar a tu consentido, nos gustaría saber su nombre 😊";
             }
 
             $paso = (int)$usuario['paso'];
+            file_put_contents("log.txt", "[DEBUG][Registro] Paso actual del usuario: $paso\n", FILE_APPEND);
             $this->insert_log($numero, "Paso actual: $paso. Datos: " . json_encode($usuario));
 
             switch ($paso) {
@@ -112,6 +116,7 @@ class Registro extends Conectar {
             $sql = "UPDATE usuarios_temp SET $campo = ?, paso = ? WHERE numero = ?";
             $stmt = $conectar->prepare($sql);
             $stmt->execute([$valor, $siguientePaso, $numero]);
+            file_put_contents("log.txt", "[DEBUG][Registro] Actualizado campo $campo a '$valor' y paso a $siguientePaso para $numero\n", FILE_APPEND);
         } catch (Exception $e) {
             file_put_contents("error_log.txt", "[actualizarPaso][ERROR] $campo: " . $e->getMessage() . PHP_EOL, FILE_APPEND);
         }
@@ -123,6 +128,7 @@ class Registro extends Conectar {
             $sql = "UPDATE usuarios_temp SET paso = ? WHERE numero = ?";
             $stmt = $conectar->prepare($sql);
             $stmt->execute([$siguientePaso, $numero]);
+            file_put_contents("log.txt", "[DEBUG][Registro] Solo paso actualizado a $siguientePaso para $numero\n", FILE_APPEND);
         } catch (Exception $e) {
             file_put_contents("error_log.txt", "[actualizarSoloPaso][ERROR] " . $e->getMessage() . PHP_EOL, FILE_APPEND);
         }
@@ -138,6 +144,8 @@ class Registro extends Conectar {
             ")->execute([$numero]);
 
             $conectar->prepare("DELETE FROM usuarios_temp WHERE numero = ?")->execute([$numero]);
+
+            file_put_contents("log.txt", "[DEBUG][Registro] Datos movidos a usuarios_final y limpiado usuarios_temp para $numero\n", FILE_APPEND);
         } catch (Exception $e) {
             file_put_contents("error_log.txt", "[moverAFinal][ERROR] " . $e->getMessage() . PHP_EOL, FILE_APPEND);
         }

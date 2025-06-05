@@ -28,7 +28,14 @@ function limpiarMensajesProcesados($max = 5000) {
 
 // ✅ Enviar mensaje a WhatsApp
 function EnviarMensajeWhatsApp($respuesta, $numero) {
-    if (!$respuesta) return;
+    file_put_contents("log.txt", "[DEBUG] Entrando a EnviarMensajeWhatsApp()\n", FILE_APPEND);
+    file_put_contents("log.txt", "[DEBUG] Tipo de respuesta: " . gettype($respuesta) . "\n", FILE_APPEND);
+    file_put_contents("log.txt", "[DEBUG] Contenido de respuesta: " . print_r($respuesta, true) . "\n", FILE_APPEND);
+
+    if (!$respuesta) {
+        file_put_contents("log.txt", "[DEBUG] Respuesta vacía, no se enviará nada.\n", FILE_APPEND);
+        return;
+    }
 
     if (is_string($respuesta)) {
         $data = [
@@ -47,17 +54,18 @@ function EnviarMensajeWhatsApp($respuesta, $numero) {
         $respuesta['recipient_type'] = "individual";
         $data = $respuesta;
     } else {
-        file_put_contents("error_log.txt", "[".date("Y-m-d H:i:s")."] Tipo de respuesta desconocido".PHP_EOL, FILE_APPEND);
+        file_put_contents("error_log.txt", "[".date("Y-m-d H:i:s")."] Tipo de respuesta desconocido\n", FILE_APPEND);
         return;
     }
 
-    file_put_contents("debug_whatsapp.json", json_encode($data, JSON_PRETTY_PRINT));
+    $jsonData = json_encode($data);
+    file_put_contents("debug_whatsapp.json", $jsonData);
 
     $options = [
         'http' => [
             'method' => 'POST',
             'header' => "Content-type: application/json\r\nAuthorization: Bearer " . WHATSAPP_TOKEN . "\r\n",
-            'content' => json_encode($data),
+            'content' => $jsonData,
             'ignore_errors' => true
         ]
     ];
@@ -65,5 +73,10 @@ function EnviarMensajeWhatsApp($respuesta, $numero) {
     $context = stream_context_create($options);
     $response = file_get_contents(WHATSAPP_URL, false, $context);
 
+    file_put_contents("log.txt", "[DEBUG] Respuesta de WhatsApp API: $response\n", FILE_APPEND);
     file_put_contents("log.txt", "[" . date("Y-m-d H:i:s") . "] Mensaje enviado a $numero: " . print_r($data, true) . PHP_EOL, FILE_APPEND);
+
+    if ($http_response_header) {
+        file_put_contents("log.txt", "[DEBUG] Encabezados HTTP: " . print_r($http_response_header, true) . "\n", FILE_APPEND);
+    }
 }
