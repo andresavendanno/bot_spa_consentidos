@@ -61,10 +61,11 @@ function recibirMensajes($req) {
         $conectar = new Conectar();
         $conexion = $conectar->conexion();
         $stmt = $conexion->prepare("SELECT COUNT(*) FROM usuarios_final WHERE numero = ?");
+        file_put_contents("log.txt", "[DEBUG] Consulta ejecutada para el número: $numero".PHP_EOL, FILE_APPEND);
         $stmt->execute([$numero]);
         $esRegistrado = $stmt->fetchColumn() > 0;
-        $esRegistrado = $stmt->fetchColumn() > 0;
-        file_put_contents("log.txt", "[Check] Registrado: " . ($esRegistrado ? "Sí" : "No") . PHP_EOL, FILE_APPEND);
+        file_put_contents("log.txt", "[DEBUG] Resultado consulta: " . ($esRegistrado ? "Registrado" : "No registrado") . PHP_EOL, FILE_APPEND);
+
 
 
         // Redirigir a la clase correspondiente
