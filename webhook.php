@@ -54,6 +54,8 @@ function verificarToken($req, $res) {
 // Recibir mensajes
 function recibirMensajes($req) {
     try {
+        file_put_contents("log.txt", "[" . date("Y-m-d H:i:s") . "] Payload recibido: " . json_encode($req) . PHP_EOL, FILE_APPEND);
+
         if (!isset($req['entry'][0]['changes'][0]['value']['messages'])) return;
 
         $entry = $req['entry'][0];
@@ -63,6 +65,8 @@ function recibirMensajes($req) {
         $mensaje = $objetomensaje[0];
 
         $idMensaje = $mensaje['id'] ?? null;
+        file_put_contents("log.txt", "[" . date("Y-m-d H:i:s") . "] Mensaje recibido: $comentario de $numero (ID: $idMensaje)" . PHP_EOL, FILE_APPEND);
+
         if (isset($mensaje['type']) && $mensaje['type'] === 'button') {
           $comentario = strtolower($mensaje['button']['payload'] ?? $mensaje['button']['text'] ?? '');
         } else {
@@ -93,6 +97,7 @@ function recibirMensajes($req) {
             $usuario = new Usuario();
             $respuesta = $usuario->procesarPaso($numero, $comentario);
         } else {
+            file_put_contents("log.txt", "[" . date("Y-m-d H:i:s") . "] Mensaje recibido: $comentario de $numero (ID: $idMensaje)" . PHP_EOL, FILE_APPEND);
             $registro = new Registro();
             $respuesta = $registro->procesarPaso($numero, $comentario);
             $registro->insert_registro($numero, $comentario);
@@ -103,6 +108,8 @@ function recibirMensajes($req) {
     } catch (Exception $e) {
         file_put_contents("log.txt", "[".date("Y-m-d H:i:s")."] Error: ".$e->getMessage().PHP_EOL, FILE_APPEND);
     }
+    file_put_contents("log.txt", "[" . date("Y-m-d H:i:s") . "] Fin del procesamiento para $numero" . PHP_EOL, FILE_APPEND);
+
 }
 
 
@@ -110,6 +117,7 @@ function recibirMensajes($req) {
 // Enviar mensaje por WhatsApp
 function EnviarMensajeWhastapp($respuesta, $numero) {
     if (!$respuesta) return;
+    file_put_contents("log.txt", "[" . date("Y-m-d H:i:s") . "] Respuesta a enviar: " . json_encode($respuesta) . " para $numero" . PHP_EOL, FILE_APPEND);
 
     if (is_array($respuesta)) {
         $respuesta['to'] = $numero;
