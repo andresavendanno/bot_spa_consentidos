@@ -63,7 +63,10 @@ function recibirMensajes($req) {
         try {
             $registro = new Registro();
             $respuesta = $registro->procesarPaso($numero, $comentario);
+            file_put_contents("error_log.txt", "[DEBUG] Llamando a insert_log...\n", FILE_APPEND);
             $registro->insert_log($numero, $comentario);  // <- este puede ser problemático
+            file_put_contents("error_log.txt", "[DEBUG] insert_log ejecutado\n", FILE_APPEND);
+
         } catch (Throwable $e) {
             file_put_contents("logs/error.log", "[ERROR][Registro] " . $e->getMessage() . " en línea " . $e->getLine() . PHP_EOL, FILE_APPEND);
         }
