@@ -3,7 +3,7 @@
 class Conectar {
     protected $dbh;
 
-    protected function conexion() {
+    public function conexion() {
         $host = 'localhost';
         $dbname = 'u268007922_clientes';
         $usuario = 'u268007922_spaconsentidos';
