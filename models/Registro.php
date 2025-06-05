@@ -29,26 +29,28 @@ class Registro extends Conectar {
             $conectar = parent::conexion();
             parent::set_names();
 
-            // 🔁 PRIORIDAD: si el mensaje es inicio_manual, iniciar nuevo registro SIEMPRE
-            if ($mensaje === "inicio_manual") {
-                $stmt = $conectar->prepare("INSERT INTO usuarios_temp (numero, paso, fecha_creacion) VALUES (?, 1, now())");
-                $stmt->execute([$numero]);
-                $this->insert_log($numero, "Paso 1 reiniciado manualmente");
-                return "¡Perfecto! Vamos a registrar a otro consentido 🐶🐱. ¿Cuál es su nombre?";
-            }
-            // Si ya está registrado definitivamente
-            $stmt = $conectar->prepare("SELECT 1 FROM usuarios_final WHERE numero = ?");
-            $stmt->execute([$numero]);
-            if ($stmt->fetch()) {
-                $this->insert_log($numero, "Ya estaba registrado (usuarios_final)");
-                return "¡Hola nuevamente! Ya registramos a tu consentido. Si necesitas hacer cambios, háznoslo saber.";
-            }
+            // ⚠️ NO verificar usuarios_final aquí, porque puede estar registrando otro consentido
 
-            // Buscar si tiene registro temporal en curso
-            $stmt = $conectar->prepare("SELECT * FROM usuarios_temp WHERE numero = ?");
+            // Buscar si ya hay un registro en progreso
+            $stmt = $conectar->prepare("SELECT * FROM usuarios_temp WHERE numero = ? ORDER BY id DESC LIMIT 1");
             $stmt->execute([$numero]);
             $usuario = $stmt->fetch(PDO::FETCH_ASSOC);
 
+            // Si no hay registro previo o se forzó reinicio, inicia paso 1
+            if (!$usuario || $mensaje === "inicio_manual") {
+                file_put_contents("error_log.txt", "[procesarPaso][DEBUG] Usuario nuevo o inicio manual, creando registro en usuarios_temp\n", FILE_APPEND);
+
+                $stmt = $conectar->prepare("INSERT INTO usuarios_temp (numero, paso, fecha_creacion) VALUES (?, 1, now())");
+                $stmt->execute([$numero]);
+
+                $this->insert_log($numero, "Paso 1 iniciado");
+
+                return ($mensaje === "inicio_manual")
+                    ? "¡Perfecto! Vamos a registrar a otro consentido 🐶🐱. ¿Cuál es su nombre?"
+                    : "¡Hola soy BOTita 🐾! ¡Gracias por comunicarte con Spa Consentidos! Veo que eres nuevo. Para registrar a tu consentido, nos gustaría saber su nombre 😊";
+            }
+
+            // Continuar el flujo según el paso
             $paso = (int)$usuario['paso'];
 
             switch ($paso) {
@@ -89,7 +91,7 @@ class Registro extends Conectar {
                 case 7:
                     $mensaje_limpio = strtolower(trim($mensaje));
                     if ($mensaje_limpio === "sin foto" || $tipoMensaje === "image") {
-                        $this->actualizarSoloPaso($numero, 8); // No se guarda imagen/texto
+                        $this->actualizarSoloPaso($numero, 8);
                         return "¿Cuál es tu nombre?";
                     }
                     return "Si deseas continuar sin foto, responde con *Sin foto*. O bien, envía una imagen.";
