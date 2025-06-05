@@ -64,16 +64,21 @@ function recibirMensajes($req) {
         $objetomensaje = $value['messages'];
         $mensaje = $objetomensaje[0];
 
-        $idMensaje = $mensaje['id'] ?? null;
-        file_put_contents("log.txt", "[" . date("Y-m-d H:i:s") . "] Mensaje recibido: $comentario de $numero (ID: $idMensaje)" . PHP_EOL, FILE_APPEND);
-
-        if (isset($mensaje['type']) && $mensaje['type'] === 'button') {
-          $comentario = strtolower($mensaje['button']['payload'] ?? $mensaje['button']['text'] ?? '');
-        } else {
-          $comentario = strtolower($mensaje['text']['body'] ?? '');
-        }
-
         $numero = $mensaje['from'] ?? '';
+        $idMensaje = $mensaje['id'] ?? null;
+
+        // Extraer contenido según tipo de mensaje
+        if (isset($mensaje['type']) && $mensaje['type'] === 'interactive') {
+            // Botón interactivo
+            $comentario = strtolower($mensaje['interactive']['button_reply']['id'] ?? '');
+        } else {
+            $comentario = strtolower($mensaje['text']['body'] ?? '');
+        }
+        // Checkeo con log de depuración
+        if (empty($comentario) || empty($numero) || empty($idMensaje)) {
+            file_put_contents("log.txt", "[" . date("Y-m-d H:i:s") . "] FALTAN DATOS: Comentario: '$comentario', Numero: '$numero', ID: '$idMensaje'" . PHP_EOL, FILE_APPEND);
+            return;
+        }
 
         if (empty($comentario) || empty($numero) || empty($idMensaje)) return;
 
