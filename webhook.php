@@ -70,6 +70,8 @@ function recibirMensajes($req) {
         $conectar = new Conectar();
         file_put_contents("log.txt", "[DEBUG] Conectando a base de datos...\n", FILE_APPEND);
         $conexion = $conectar->conexion();
+        file_put_contents("log.txt", "[DEBUG] Conexión a BD OK\n", FILE_APPEND);
+
         if ($conexion instanceof PDO) {
             file_put_contents("log.txt", "[DEBUG] Conexión OK\n", FILE_APPEND);
         } else {
@@ -85,7 +87,7 @@ function recibirMensajes($req) {
         }
 
         $stmt = $conexion->prepare("SELECT COUNT(*) FROM usuarios_final WHERE numero = ?");
-        file_put_contents("log.txt", "[DEBUG] Consulta ejecutada para el número: $numero".PHP_EOL, FILE_APPEND);
+        file_put_contents("log.txt", "[DEBUG] Preparación de consulta OK\n", FILE_APPEND);
         $stmt->execute([$numero]);
         $esRegistrado = $stmt->fetchColumn() > 0;
         file_put_contents("log.txt", "[DEBUG] Resultado consulta: " . ($esRegistrado ? "Registrado" : "No registrado") . PHP_EOL, FILE_APPEND);
@@ -94,6 +96,7 @@ function recibirMensajes($req) {
 
         // Redirigir a la clase correspondiente
         file_put_contents("log.txt", "[DEBUG] Es registrado: ".($esRegistrado ? 'sí' : 'no').PHP_EOL, FILE_APPEND);
+        file_put_contents("log.txt", "[DEBUG] Resultado COUNT usuarios_final: $esRegistrado\n", FILE_APPEND);
 
         if ($esRegistrado) {
             $usuario = new Usuario();

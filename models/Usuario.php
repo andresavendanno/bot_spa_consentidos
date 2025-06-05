@@ -4,6 +4,7 @@ require_once("config/conexion.php");
 class Usuario extends Conectar {
 
     public function procesarPaso($numero, $mensaje) {
+        file_put_contents("log.txt", "[DEBUG] Usuario::procesarPaso ejecutado con mensaje: $mensaje\n", FILE_APPEND);
     try {
         $conectar = parent::conexion();
         parent::set_names();
