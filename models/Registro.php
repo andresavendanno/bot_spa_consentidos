@@ -3,21 +3,25 @@ require_once("config/conexion.php");
 
 class Registro extends Conectar {
 
-    public function insert_log($numero, $texto) {
-        file_put_contents("error_log.txt", "[insert_log][INFO] Numero: $numero, Texto: $texto" . PHP_EOL, FILE_APPEND);
-        try {
-            $conectar = parent::conexion();
-            parent::set_names();
-            $sql = "INSERT INTO tm_log (log_numero, log_texto, fech_crea) VALUES (?, ?, now())";
-            $stmt = $conectar->prepare($sql);
-            $stmt->bindValue(1, $numero);
-            $stmt->bindValue(2, $texto);
-            $stmt->execute();
-        } catch (Exception $e) {
-            file_put_contents("error_log.txt", "[insert_log][ERROR] " . $e->getMessage() . PHP_EOL, FILE_APPEND);
-        }
-    }
+   function insert_log($numero, $texto) {
+    file_put_contents("error_log.txt", "[insert_log][INFO] Numero: $numero, Texto: $texto" . PHP_EOL, FILE_APPEND);
 
+    try {
+        $conectar = parent::conexion();
+        parent::set_names();
+
+        $sql = "INSERT INTO tm_log (log_numero, log_texto, fech_crea) VALUES (?, ?, now())";
+        $stmt = $conectar->prepare($sql);
+        $stmt->bindValue(1, $numero);
+        $stmt->bindValue(2, $texto);
+        $stmt->execute();
+
+        file_put_contents("error_log.txt", "[insert_log][OK] Insert ejecutado correctamente\n", FILE_APPEND);
+
+    } catch (Throwable $e) {
+        file_put_contents("error_log.txt", "[insert_log][ERROR] " . $e->getMessage() . " en línea " . $e->getLine() . PHP_EOL, FILE_APPEND);
+    }
+}
     public function procesarPaso($numero, $mensaje) {
         try {
             file_put_contents("log.txt", "[DEBUG][Registro] procesarPaso iniciado con numero: $numero y mensaje: $mensaje\n", FILE_APPEND);
