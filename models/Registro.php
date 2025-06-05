@@ -3,7 +3,7 @@ require_once("config/conexion.php");
 
 class Registro extends Conectar {
 
-    public function procesarPaso($numero, $mensaje, $tipoMensaje = "text") {
+    public function insert_log($numero, $texto) {
         file_put_contents("error_log.txt", "[insert_log][INFO] Numero: $numero, Texto: $texto" . PHP_EOL, FILE_APPEND);
         try {
             $conectar = parent::conexion();
@@ -18,7 +18,8 @@ class Registro extends Conectar {
         }
     }
 
-    public function procesarPaso($numero, $mensaje) {
+    public function procesarPaso($numero, $mensaje, $tipoMensaje = "text") {
+
         try {
             $this->insert_log($numero, "Mensaje recibido: " . $mensaje);
 
@@ -90,6 +91,7 @@ class Registro extends Conectar {
                     }
 
                     return "Si deseas continuar sin foto, responde con *Sin foto*. O bien, envía una imagen.";
+
 
                 case 8:
                     $this->actualizarPaso($numero, 'tutor', $mensaje, 9);
