@@ -68,14 +68,22 @@ function recibirMensajes($req) {
         file_put_contents("log.txt", "[DEBUG] Antes de conectar a BD".PHP_EOL, FILE_APPEND);
 
         $conectar = new Conectar();
+        file_put_contents("log.txt", "[DEBUG] Conectando a base de datos...\n", FILE_APPEND);
         $conexion = $conectar->conexion();
-
-        if ($db) {
-            file_put_contents("error_log.txt", "[DEBUG] Conexión a BD OK" . PHP_EOL, FILE_APPEND);
-            $conexion->set_names();
+        if ($conexion instanceof PDO) {
+            file_put_contents("log.txt", "[DEBUG] Conexión OK\n", FILE_APPEND);
         } else {
-            file_put_contents("error_log.txt", "[DEBUG] Conexión a BD FALLÓ" . PHP_EOL, FILE_APPEND);
+            file_put_contents("log.txt", "[ERROR] Conexión FALLIDA\n", FILE_APPEND);
         }
+
+        file_put_contents("log.txt", "[DEBUG] Ejecutando set_names...\n", FILE_APPEND);
+        $set = $conectar->set_names();
+        if ($set) {
+            file_put_contents("log.txt", "[DEBUG] set_names OK\n", FILE_APPEND);
+        } else {
+            file_put_contents("log.txt", "[ERROR] set_names FALLÓ\n", FILE_APPEND);
+        }
+
         $stmt = $conexion->prepare("SELECT COUNT(*) FROM usuarios_final WHERE numero = ?");
         file_put_contents("log.txt", "[DEBUG] Consulta ejecutada para el número: $numero".PHP_EOL, FILE_APPEND);
         $stmt->execute([$numero]);
