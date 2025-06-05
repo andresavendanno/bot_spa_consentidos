@@ -41,12 +41,17 @@ class Registro extends Conectar {
             $stmt->execute([$numero]);
             $usuario = $stmt->fetch(PDO::FETCH_ASSOC);
 
-            if (!$usuario) {
+            if (!$usuario || $mensaje === "inicio_manual") {
+                file_put_contents("error_log.txt", "[procesarPaso][DEBUG] Usuario nuevo o inicio manual, creando registro en usuarios_temp\n", FILE_APPEND);
+
+                // Asegúrate de no insertar duplicado si ya se insertó antes
                 $stmt = $conectar->prepare("INSERT INTO usuarios_temp (numero, paso, fecha_creacion) VALUES (?, 1, now())");
                 $stmt->execute([$numero]);
+
                 $this->insert_log($numero, "Paso 1 iniciado");
                 return "¡Hola soy BOTita 🐾! ¡Gracias por comunicarte con Spa Consentidos! Veo que eres nuevo. Para registrar a tu consentido, nos gustaría saber su nombre 😊";
             }
+
 
             $paso = (int)$usuario['paso'];
 
