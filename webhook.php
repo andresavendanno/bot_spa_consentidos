@@ -78,40 +78,28 @@ function recibirMensajes($req) {
 
         file_put_contents("log.txt", "[".date("Y-m-d H:i:s")."] Mensaje de $numero: $comentario".PHP_EOL, FILE_APPEND);
 
-        $registro = new Registro();
-        $usuario = new Usuario();
+        // Verificar si el usuario ya está registrado
+        $conectar = (new Conectar())->conexion();
+        $stmt = $conectar->prepare("SELECT 1 FROM usuarios_final WHERE numero = ?");
+        $stmt->execute([$numero]);
+        $esRegistrado = $stmt->fetch();
 
-        // Si ya tiene al menos un consentido registrado, usamos Usuario
-        if ($usuario->esUsuarioRegistrado($numero)) {
+        if ($esRegistrado) {
+            $usuario = new Usuario();
             $respuesta = $usuario->procesarPaso($numero, $comentario);
         } else {
-            // Conexión a la BD
-            $conectar = new Conectar();
-            $conexion = $conectar->conexion();
-            $conectar->set_names();
-
-            // Verificar si el número ya está registrado
-            $stmt = $conexion->prepare("SELECT 1 FROM usuarios_final WHERE numero = ?");
-            $stmt->execute([$numero]);
-
-            if ($stmt->fetch()) {
-                // Usuario registrado: usa lógica de Usuario.php
-                $usuario = new Usuario();
-                $respuesta = $usuario->procesarPaso($numero, $comentario);
-            } else {
-                // Usuario no registrado: usa flujo de Registro
-                $registro = new Registro();
-                $respuesta = $registro->procesarPaso($numero, $comentario);
-            }
-
+            $registro = new Registro();
+            $respuesta = $registro->procesarPaso($numero, $comentario);
+            $registro->insert_registro($numero, $comentario);
         }
-        EnviarMensajeWhastapp($respuesta, $numero);
 
+        EnviarMensajeWhastapp($respuesta, $numero);
 
     } catch (Exception $e) {
         file_put_contents("log.txt", "[".date("Y-m-d H:i:s")."] Error: ".$e->getMessage().PHP_EOL, FILE_APPEND);
     }
 }
+
 
 // Enviar mensaje por WhatsApp
 function EnviarMensajeWhastapp($respuesta, $numero) {
@@ -119,8 +107,7 @@ function EnviarMensajeWhastapp($respuesta, $numero) {
 
     if (is_array($respuesta)) {
         $respuesta['to'] = $numero;
-        $respuesta['recipient_type'] = "individual";
-        $respuesta['messaging_product'] = "whatsapp";
+        $respuesta['messaging_product'] = 'whatsapp';
         $data = json_encode($respuesta);
     } else {
         $data = json_encode([
@@ -138,7 +125,7 @@ function EnviarMensajeWhastapp($respuesta, $numero) {
     $options = [
         'http' => [
             'method' => 'POST',
-            'header' => "Content-type: application/json\r\nAuthorization: Bearer " . WHATSAPP_TOKEN . "\r\n",
+            'header' => "Content-type: application/json\r\nAuthorization: Bearer ".WHATSAPP_TOKEN."\r\n",
             'content' => $data,
             'ignore_errors' => true
         ]
@@ -148,11 +135,12 @@ function EnviarMensajeWhastapp($respuesta, $numero) {
     $response = file_get_contents(WHATSAPP_URL, false, $context);
 
     if ($response === false) {
-        file_put_contents("error_log.txt", "[" . date("Y-m-d H:i:s") . "] Error al enviar mensaje a $numero" . PHP_EOL, FILE_APPEND);
+        file_put_contents("error_log.txt", "[".date("Y-m-d H:i:s")."] Error al enviar mensaje a $numero".PHP_EOL, FILE_APPEND);
     } else {
-        file_put_contents("log.txt", "[" . date("Y-m-d H:i:s") . "] Mensaje enviado a $numero: $data" . PHP_EOL, FILE_APPEND);
+        file_put_contents("log.txt", "[".date("Y-m-d H:i:s")."] Mensaje enviado a $numero: $data".PHP_EOL, FILE_APPEND);
     }
 }
+
 
 // Lógica principal
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
