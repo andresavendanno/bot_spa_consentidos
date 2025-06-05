@@ -21,6 +21,8 @@ class Registro extends Conectar {
     public function procesarPaso($numero, $mensaje, $tipoMensaje = "text") {
 
         try {
+            $mensaje = is_array($mensaje) ? json_encode($mensaje) : trim((string)$mensaje);
+
             $this->insert_log($numero, "Mensaje recibido: " . $mensaje);
 
             $conectar = parent::conexion();
