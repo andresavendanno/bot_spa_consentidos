@@ -81,11 +81,12 @@ class Registro extends Conectar {
                     return "¿Deseas enviar una foto para ver el estado de su manto?\nPuedes enviarla ahora, o responde con *Sin foto* si no deseas enviar una.";
 
                 case 7:
-                    if (strtolower($mensaje) !== "sin foto" && strpos(strtolower($mensaje), "image") === false) {
+                    if (strtolower($mensaje) === "sin foto" || strpos(strtolower($mensaje), "image") !== false) {
+                        $this->actualizarPaso($numero, 'foto_opcional', $mensaje, 8);
+                        return "¿Cuál es tu nombre?";
+                    } else {
                         return "Si deseas continuar sin foto, responde con *Sin foto*. O bien, envía una imagen.";
                     }
-                    $this->actualizarPaso($numero, 'foto_opcional', $mensaje, 8);
-                    return "¿Cuál es tu nombre?";
 
                 case 8:
                     $this->actualizarPaso($numero, 'tutor', $mensaje, 9);
