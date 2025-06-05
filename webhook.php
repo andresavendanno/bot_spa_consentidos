@@ -63,7 +63,12 @@ function recibirMensajes($req) {
         $mensaje = $objetomensaje[0];
 
         $idMensaje = $mensaje['id'] ?? null;
-        $comentario = strtolower($mensaje['text']['body'] ?? '');
+        if (isset($mensaje['type']) && $mensaje['type'] === 'button') {
+          $comentario = strtolower($mensaje['button']['payload'] ?? $mensaje['button']['text'] ?? '');
+        } else {
+          $comentario = strtolower($mensaje['text']['body'] ?? '');
+        }
+
         $numero = $mensaje['from'] ?? '';
 
         if (empty($comentario) || empty($numero) || empty($idMensaje)) return;
