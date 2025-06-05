@@ -12,11 +12,11 @@ function recibirMensajes($req) {
             return;
         }
 
-        $mensaje = $req['entry'][0]['changes'][0]['value']['messages'][0];
-        $idMensaje = $mensaje['id'] ?? '';
-        $comentario = strtolower(trim($mensaje['text']['body'] ?? ''));
-        $numero = $mensaje['from'] ?? '';
-        $tipoMensaje = $mensaje['type'] ?? 'text';
+        $mensajeRaw = $req['entry'][0]['changes'][0]['value']['messages'][0]; // <--- no lo llames $mensaje
+        $idMensaje = $mensajeRaw['id'] ?? '';
+        $tipoMensaje = $mensajeRaw['type'] ?? 'text';
+        $comentario = strtolower(trim($mensajeRaw['text']['body'] ?? ''));
+        $numero = $mensajeRaw['from'] ?? '';
 
 
         file_put_contents("log.txt", "[DEBUG] Datos extraídos -> ID: $idMensaje, Comentario: $comentario, Número: $numero\n", FILE_APPEND);
