@@ -65,8 +65,13 @@ function recibirMensajes($req) {
         file_put_contents("log.txt", "[DEBUG] Limpieza OK".PHP_EOL, FILE_APPEND);
 
         // Verificar si ya está registrado
+        file_put_contents("log.txt", "[DEBUG] Antes de conectar a BD".PHP_EOL, FILE_APPEND);
+
         $conectar = new Conectar();
         $conexion = $conectar->conexion();
+
+        file_put_contents("log.txt", "[DEBUG] Conexión a BD OK".PHP_EOL, FILE_APPEND);
+
         $stmt = $conexion->prepare("SELECT COUNT(*) FROM usuarios_final WHERE numero = ?");
         file_put_contents("log.txt", "[DEBUG] Consulta ejecutada para el número: $numero".PHP_EOL, FILE_APPEND);
         $stmt->execute([$numero]);
