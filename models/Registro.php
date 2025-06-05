@@ -96,6 +96,20 @@ class Registro extends Conectar {
             file_put_contents("error_log.txt", "[actualizarSoloPaso][ERROR] " . $e->getMessage() . PHP_EOL, FILE_APPEND);
         }
     }
+    private function actualizarPaso($numero, $campo, $valor, $siguientePaso) {
+        try {
+            $conectar = parent::conexion();
+            parent::set_names();
+
+            $sql = "UPDATE usuarios_temp SET $campo = ?, paso = ? WHERE numero = ?";
+            $stmt = $conectar->prepare($sql);
+            $stmt->execute([$valor, $siguientePaso, $numero]);
+
+            file_put_contents("log.txt", "[DEBUG][Registro] Paso actualizado ($campo = $valor, paso = $siguientePaso) para $numero\n", FILE_APPEND);
+        } catch (Throwable $e) {
+            file_put_contents("error_log.txt", "[actualizarPaso][ERROR] " . $e->getMessage() . PHP_EOL, FILE_APPEND);
+        }
+    }
 
     private function moverAFinal($numero) {
         try {
