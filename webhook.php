@@ -49,13 +49,20 @@ function recibirMensajes($req) {
 
         file_put_contents("log.txt", "[".date("Y-m-d H:i:s")."] Mensaje de $numero: $comentario".PHP_EOL, FILE_APPEND);
 
+        file_put_contents("log.txt", "[DEBUG] Entrando a verificación de duplicados".PHP_EOL, FILE_APPEND);
+
         if (mensajeYaProcesado($idMensaje)) {
+            file_put_contents("log.txt", "[DEBUG] Ya procesado, ignorando".PHP_EOL, FILE_APPEND);
             file_put_contents("log.txt", "[".date("Y-m-d H:i:s")."] Duplicado ignorado: $idMensaje".PHP_EOL, FILE_APPEND);
             return;
         }
 
+        file_put_contents("log.txt", "[DEBUG] No es duplicado, marcando como procesado".PHP_EOL, FILE_APPEND);
         marcarMensajeComoProcesado($idMensaje);
+        file_put_contents("log.txt", "[DEBUG] Marcado OK".PHP_EOL, FILE_APPEND);
+
         limpiarMensajesProcesados();
+        file_put_contents("log.txt", "[DEBUG] Limpieza OK".PHP_EOL, FILE_APPEND);
 
         // Verificar si ya está registrado
         $conectar = new Conectar();
