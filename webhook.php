@@ -70,8 +70,12 @@ function recibirMensajes($req) {
         $conectar = new Conectar();
         $conexion = $conectar->conexion();
 
-        file_put_contents("log.txt", "[DEBUG] Conexión a BD OK".PHP_EOL, FILE_APPEND);
-
+        if ($db) {
+            file_put_contents("error_log.txt", "[DEBUG] Conexión a BD OK" . PHP_EOL, FILE_APPEND);
+            $conexion->set_names();
+        } else {
+            file_put_contents("error_log.txt", "[DEBUG] Conexión a BD FALLÓ" . PHP_EOL, FILE_APPEND);
+        }
         $stmt = $conexion->prepare("SELECT COUNT(*) FROM usuarios_final WHERE numero = ?");
         file_put_contents("log.txt", "[DEBUG] Consulta ejecutada para el número: $numero".PHP_EOL, FILE_APPEND);
         $stmt->execute([$numero]);

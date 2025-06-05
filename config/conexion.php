@@ -19,7 +19,12 @@
             }
         }
         public function set_names(){
-            return $this->dbh->query("SET NAMES 'utf8'");
+            if ($this->dbh instanceof PDO) {
+                return $this->dbh->query("SET NAMES 'utf8'");
+            } else {
+                file_put_contents("error_log.txt", "[ERROR] DBH no inicializado en set_names()" . PHP_EOL, FILE_APPEND);
+                return false;
+            }
         }
     }
 ?>
