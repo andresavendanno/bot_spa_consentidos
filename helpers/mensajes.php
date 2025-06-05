@@ -51,15 +51,23 @@ function recibirMensajes($req) {
         file_put_contents("log.txt", "[DEBUG] Usuario registrado? " . ($esRegistrado ? "Sí" : "No") . "\n", FILE_APPEND);
 
         if ($esRegistrado) {
-            file_put_contents("log.txt", "[DEBUG] Procesando paso con Usuario.php\n", FILE_APPEND);
+    file_put_contents("log.txt", "[DEBUG] Procesando paso con Usuario.php\n", FILE_APPEND);
+    try {
             $usuario = new Usuario();
             $respuesta = $usuario->procesarPaso($numero, $comentario);
-        } else {
-            file_put_contents("log.txt", "[DEBUG] Procesando paso con Registro.php\n", FILE_APPEND);
+        } catch (Throwable $e) {
+            file_put_contents("logs/error.log", "[ERROR][Usuario] " . $e->getMessage() . " en línea " . $e->getLine() . PHP_EOL, FILE_APPEND);
+        }
+    } else {
+        file_put_contents("log.txt", "[DEBUG] Procesando paso con Registro.php\n", FILE_APPEND);
+        try {
             $registro = new Registro();
             $respuesta = $registro->procesarPaso($numero, $comentario);
-            $registro->insert_log($numero, $comentario);
+            $registro->insert_log($numero, $comentario);  // <- este puede ser problemático
+        } catch (Throwable $e) {
+            file_put_contents("logs/error.log", "[ERROR][Registro] " . $e->getMessage() . " en línea " . $e->getLine() . PHP_EOL, FILE_APPEND);
         }
+    }
 
         file_put_contents("log.txt", "[DEBUG] Respuesta recibida para envío: ".print_r($respuesta, true)."\n", FILE_APPEND);
 
