@@ -99,21 +99,28 @@ function recibirMensajes($req) {
 function EnviarMensajeWhastapp($respuesta, $numero) {
     if (!$respuesta) return;
 
-    $data = json_encode([
-        "messaging_product" => "whatsapp",
-        "recipient_type" => "individual",
-        "to" => $numero,
-        "type" => "text",
-        "text" => [
-            "preview_url" => false,
-            "body" => $respuesta
-        ]
-    ]);
+    if (is_array($respuesta)) {
+        $respuesta['to'] = $numero;
+        $respuesta['recipient_type'] = "individual";
+        $respuesta['messaging_product'] = "whatsapp";
+        $data = json_encode($respuesta);
+    } else {
+        $data = json_encode([
+            "messaging_product" => "whatsapp",
+            "recipient_type" => "individual",
+            "to" => $numero,
+            "type" => "text",
+            "text" => [
+                "preview_url" => false,
+                "body" => $respuesta
+            ]
+        ]);
+    }
 
     $options = [
         'http' => [
             'method' => 'POST',
-            'header' => "Content-type: application/json\r\nAuthorization: Bearer ".WHATSAPP_TOKEN."\r\n",
+            'header' => "Content-type: application/json\r\nAuthorization: Bearer " . WHATSAPP_TOKEN . "\r\n",
             'content' => $data,
             'ignore_errors' => true
         ]
@@ -123,9 +130,9 @@ function EnviarMensajeWhastapp($respuesta, $numero) {
     $response = file_get_contents(WHATSAPP_URL, false, $context);
 
     if ($response === false) {
-        file_put_contents("error_log.txt", "[".date("Y-m-d H:i:s")."] Error al enviar mensaje a $numero".PHP_EOL, FILE_APPEND);
+        file_put_contents("error_log.txt", "[" . date("Y-m-d H:i:s") . "] Error al enviar mensaje a $numero" . PHP_EOL, FILE_APPEND);
     } else {
-        file_put_contents("log.txt", "[".date("Y-m-d H:i:s")."] Mensaje enviado a $numero: $respuesta".PHP_EOL, FILE_APPEND);
+        file_put_contents("log.txt", "[" . date("Y-m-d H:i:s") . "] Mensaje enviado a $numero: $data" . PHP_EOL, FILE_APPEND);
     }
 }
 

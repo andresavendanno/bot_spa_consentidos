@@ -79,11 +79,16 @@ function recibirMensajes($req) {
         file_put_contents("log.txt", "[".date("Y-m-d H:i:s")."] Mensaje de $numero: $comentario".PHP_EOL, FILE_APPEND);
 
         $registro = new Registro();
-        $respuesta = $registro->procesarPaso($numero, $comentario);
+        $usuario = new Usuario();
 
+        // Si ya tiene al menos un consentido registrado, usamos Usuario
+        if ($usuario->esUsuarioRegistrado($numero)) {
+            $respuesta = $usuario->procesarPaso($numero, $comentario);
+        } else {
+            $respuesta = $registro->procesarPaso($numero, $comentario);
+        }
         EnviarMensajeWhastapp($respuesta, $numero);
 
-        $registro->insert_registro($numero, $comentario);
 
     } catch (Exception $e) {
         file_put_contents("log.txt", "[".date("Y-m-d H:i:s")."] Error: ".$e->getMessage().PHP_EOL, FILE_APPEND);
