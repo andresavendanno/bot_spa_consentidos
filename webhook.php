@@ -71,6 +71,11 @@ function recibirMensajes($req) {
         file_put_contents("log.txt", "[DEBUG] Conectando a base de datos...\n", FILE_APPEND);
         $conexion = $conectar->conexion();
         file_put_contents("log.txt", "[DEBUG] Conexión a BD OK\n", FILE_APPEND);
+        if (!$conexion) {
+        file_put_contents("log.txt", "[ERROR] Conexion retornó false\n", FILE_APPEND);
+        return;
+        }
+
 
         if ($conexion instanceof PDO) {
             file_put_contents("log.txt", "[DEBUG] Conexión OK\n", FILE_APPEND);

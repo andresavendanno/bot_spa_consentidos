@@ -5,16 +5,24 @@
         protected $dbh;
 
         protected function conexion(){
-            try{
-                $host = 'localhost';         // o mysql.hostinger.com o localhost
+            try {
+                $host = 'localhost';
                 $dbname = 'u268007922_clientes';
                 $usuario = 'u268007922_spaconsentidos';
                 $clave = 'CONSENTIDOSPORMAmeta05';
 
-                $conectar = $this->dbh = new PDO("mysql:host=$host;dbname=$dbname",$usuario,$clave);
-                return $conectar;
-            }catch(Exception $e){
-                file_put_contents("error_log.txt", "Error BD: " . $e->getMessage() . PHP_EOL, FILE_APPEND);
+                $this->dbh = new PDO("mysql:host=$host;dbname=$dbname", $usuario, $clave);
+                file_put_contents("log.txt", "[DEBUG] CONEXIÓN ESTABLECIDA\n", FILE_APPEND);
+
+                // Verificamos retorno explícitamente
+                if (!$this->dbh) {
+                    file_put_contents("log.txt", "[ERROR] CONEXIÓN NO RETORNÓ\n", FILE_APPEND);
+                }
+
+                return $this->dbh;
+
+            } catch (Exception $e) {
+                file_put_contents("error_log.txt", "[ERROR][BD] " . $e->getMessage() . PHP_EOL, FILE_APPEND);
                 die();
             }
         }
