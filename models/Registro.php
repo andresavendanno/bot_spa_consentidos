@@ -157,4 +157,16 @@ class Registro extends Conectar {
             file_put_contents("error_log.txt", "[moverAFinal][ERROR] " . $e->getMessage() . PHP_EOL, FILE_APPEND);
         }
     }
+    
+    public function reiniciarRegistro($numero) {
+            try {
+                $conectar = parent::conexion();
+                parent::set_names();
+                $conectar->prepare("DELETE FROM usuarios_temp WHERE numero = ?")->execute([$numero]);
+                $conectar->prepare("INSERT INTO usuarios_temp (numero, paso, fecha_creacion) VALUES (?, 1, now())")->execute([$numero]);
+                file_put_contents("log.txt", "[DEBUG][Registro] Registro reiniciado para $numero\n", FILE_APPEND);
+            } catch (Throwable $e) {
+                file_put_contents("error_log.txt", "[reiniciarRegistro][ERROR] " . $e->getMessage() . PHP_EOL, FILE_APPEND);
+            }
+        }
 }

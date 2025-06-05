@@ -76,21 +76,15 @@ class Usuario extends Conectar {
                 }
             }
 
-            // 🔹 Si eligió agregar nuevo
+           // 🔹 Si eligió agregar nuevo
             if ($mensaje === "nuevo") {
                 file_put_contents("log.txt", "[DEBUG][Usuario.php] Entró a opción 'nuevo'\n", FILE_APPEND);
 
-                $conectar = parent::conexion();
-                parent::set_names();
-
-                // Insertar nuevo registro en usuarios_temp (sin borrar los anteriores)
-                $stmt = $conectar->prepare("INSERT INTO usuarios_temp (numero, paso, fecha_creacion) VALUES (?, 1, now())");
-                $stmt->execute([$numero]);
-
-                file_put_contents("log.txt", "[DEBUG][Usuario.php] Nuevo consentido iniciado\n", FILE_APPEND);
-
                 $registro = new Registro();
-                return $registro->procesarPaso($numero, "");
+                $registro->reiniciarRegistro($numero);
+                file_put_contents("log.txt", "[DEBUG][Usuario.php] Registro reiniciado desde Usuario.php\n", FILE_APPEND);
+
+                return $registro->procesarPaso($numero, "inicio_manual");
             }
 
             file_put_contents("log.txt", "[DEBUG][Usuario.php] Mensaje no reconocido, devolviendo respuesta default\n", FILE_APPEND);
