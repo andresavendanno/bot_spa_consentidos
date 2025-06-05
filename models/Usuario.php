@@ -4,8 +4,10 @@ require_once("config/conexion.php");
 class Usuario extends Conectar {
 
     public function procesarPaso($numero, $mensaje) {
+        file_put_contents("log.txt", "[DEBUG][Usuario.php] Entró a procesarPaso con mensaje: '$mensaje'\n", FILE_APPEND);
         try {
             // 🔹 CONEXIÓN Y NOMBRE DE COLUMNA
+            
             file_put_contents("log.txt", "[DEBUG] Entrando a Usuario.php con mensaje: $mensaje\n", FILE_APPEND);
 
             $conectar = parent::conexion();
@@ -15,7 +17,9 @@ class Usuario extends Conectar {
             $stmt = $conectar->prepare("SELECT DISTINCT consentido FROM usuarios_final WHERE numero = ?");
             $stmt->execute([$numero]);
             $consentidos = $stmt->fetchAll(PDO::FETCH_COLUMN);
-
+            file_put_contents("log.txt", "[DEBUG][Usuario.php] Comparando mensaje: '".strtolower($mensaje)."'\n", FILE_APPEND);
+            $mensaje = trim(strtolower($mensaje));
+            
             // 🔹 Si dice "hola" o "menu", responder con botones
             if (strtolower($mensaje) === "hola" || strtolower($mensaje) === "menu") {
                 $botones = [];
