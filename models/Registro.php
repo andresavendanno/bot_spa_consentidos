@@ -41,16 +41,21 @@ class Registro extends Conectar {
             $stmt->execute([$numero]);
             $usuario = $stmt->fetch(PDO::FETCH_ASSOC);
 
-            if (!$usuario || $mensaje === "inicio_manual") {
+           if (!$usuario || $mensaje === "inicio_manual") {
                 file_put_contents("error_log.txt", "[procesarPaso][DEBUG] Usuario nuevo o inicio manual, creando registro en usuarios_temp\n", FILE_APPEND);
 
-                // Asegúrate de no insertar duplicado si ya se insertó antes
                 $stmt = $conectar->prepare("INSERT INTO usuarios_temp (numero, paso, fecha_creacion) VALUES (?, 1, now())");
                 $stmt->execute([$numero]);
 
                 $this->insert_log($numero, "Paso 1 iniciado");
-                return "¡Hola soy BOTita 🐾! ¡Gracias por comunicarte con Spa Consentidos! Veo que eres nuevo. Para registrar a tu consentido, nos gustaría saber su nombre 😊";
+
+                if ($mensaje === "inicio_manual") {
+                    return "¡Perfecto! Vamos a registrar a otro consentido 🐶🐱. ¿Cuál es su nombre?";
+                } else {
+                    return "¡Hola soy BOTita 🐾! ¡Gracias por comunicarte con Spa Consentidos! Veo que eres nuevo. Para registrar a tu consentido, nos gustaría saber su nombre 😊";
+                }
             }
+
 
 
             $paso = (int)$usuario['paso'];
@@ -157,7 +162,7 @@ class Registro extends Conectar {
             file_put_contents("error_log.txt", "[moverAFinal][ERROR] " . $e->getMessage() . PHP_EOL, FILE_APPEND);
         }
     }
-    
+
     public function reiniciarRegistro($numero) {
             try {
                 $conectar = parent::conexion();
