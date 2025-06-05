@@ -54,7 +54,7 @@ function recibirMensajes($req) {
     file_put_contents("log.txt", "[DEBUG] Procesando paso con Usuario.php\n", FILE_APPEND);
     try {
             $usuario = new Usuario();
-            $respuesta = $usuario->procesarPaso($numero, $comentario);
+            $respuesta = $usuario->procesarPaso($numero, $comentario, $tipoMensaje);
         } catch (Throwable $e) {
             file_put_contents("logs/error.log", "[ERROR][Usuario] " . $e->getMessage() . " en línea " . $e->getLine() . PHP_EOL, FILE_APPEND);
         }
@@ -62,7 +62,7 @@ function recibirMensajes($req) {
         file_put_contents("log.txt", "[DEBUG] Procesando paso con Registro.php\n", FILE_APPEND);
         try {
             $registro = new Registro();
-            $respuesta = $registro->procesarPaso($numero, $comentario);
+            $respuesta = $registro->procesarPaso($numero, $mensaje, $tipoMensaje);
             file_put_contents("error_log.txt", "[DEBUG] Llamando a insert_log...\n", FILE_APPEND);
             $registro->insert_log($numero, $comentario);  // <- este puede ser problemático
             file_put_contents("error_log.txt", "[DEBUG] insert_log ejecutado\n", FILE_APPEND);

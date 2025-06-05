@@ -3,7 +3,7 @@ require_once("config/conexion.php");
 
 class Registro extends Conectar {
 
-    public function insert_log($numero, $texto) {
+    public function procesarPaso($numero, $mensaje, $tipoMensaje = "text") {
         file_put_contents("error_log.txt", "[insert_log][INFO] Numero: $numero, Texto: $texto" . PHP_EOL, FILE_APPEND);
         try {
             $conectar = parent::conexion();
@@ -81,12 +81,15 @@ class Registro extends Conectar {
                     return "¿Deseas enviar una foto para ver el estado de su manto?\nPuedes enviarla ahora, o responde con *Sin foto* si no deseas enviar una.";
 
                 case 7:
-                    if (strtolower($mensaje) === "sin foto" || strpos(strtolower($mensaje), "image") !== false) {
-                        $this->actualizarPaso($numero, 'foto_opcional', $mensaje, 8);
+                    $mensaje_limpio = strtolower(trim($mensaje));
+
+                    // Solo permitimos avanzar si es "sin foto" o si es una imagen (mensaje tipo imagen)
+                    if ($mensaje_limpio === "sin foto" || $tipoMensaje === "image") {
+                        $this->actualizarSoloPaso($numero, 8); // No se guarda el contenido
                         return "¿Cuál es tu nombre?";
-                    } else {
-                        return "Si deseas continuar sin foto, responde con *Sin foto*. O bien, envía una imagen.";
                     }
+
+                    return "Si deseas continuar sin foto, responde con *Sin foto*. O bien, envía una imagen.";
 
                 case 8:
                     $this->actualizarPaso($numero, 'tutor', $mensaje, 9);
