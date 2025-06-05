@@ -76,17 +76,19 @@ function recibirMensajes($req) {
 
 
         // Redirigir a la clase correspondiente
+        file_put_contents("log.txt", "[DEBUG] Es registrado: ".($esRegistrado ? 'sí' : 'no').PHP_EOL, FILE_APPEND);
+
         if ($esRegistrado) {
             $usuario = new Usuario();
             $respuesta = $usuario->procesarPaso($numero, $comentario);
-            file_put_contents("log.txt", "[Check] Respuesta Usuario: " . print_r($respuesta, true) . PHP_EOL, FILE_APPEND);
-
         } else {
             $registro = new Registro();
             $respuesta = $registro->procesarPaso($numero, $comentario);
-            file_put_contents("log.txt", "[Check] Respuesta Registro: " . print_r($respuesta, true) . PHP_EOL, FILE_APPEND);
             $registro->insert_registro($numero, $comentario);
         }
+
+        file_put_contents("log.txt", "[DEBUG] Respuesta generada: ".print_r($respuesta, true).PHP_EOL, FILE_APPEND);
+
 
         EnviarMensajeWhastapp($respuesta, $numero);
 
