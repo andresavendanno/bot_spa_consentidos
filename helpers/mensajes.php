@@ -12,12 +12,35 @@ function recibirMensajes($req) {
             return;
         }
 
-        $mensajeRaw = $req['entry'][0]['changes'][0]['value']['messages'][0]; // <--- no lo llames $mensaje
-        $idMensaje = $mensajeRaw['id'] ?? '';
-        $tipoMensaje = $mensajeRaw['type'] ?? 'text';
-        $comentario = strtolower(trim($mensajeRaw['text']['body'] ?? ''));
-        $numero = $mensajeRaw['from'] ?? '';
-        $mensaje = strtolower(trim($mensajeRaw['text']['body'] ?? ''));
+       $mensajeRaw = $req['entry'][0]['changes'][0]['value']['messages'][0]; // No usar $mensaje aquí para evitar colisiones
+
+$idMensaje = $mensajeRaw['id'] ?? '';
+$tipoMensaje = $mensajeRaw['type'] ?? 'text';
+$numero = $mensajeRaw['from'] ?? '';
+
+// Detectar correctamente el contenido del mensaje según tipo
+    switch ($tipoMensaje) {
+        case 'text':
+            $comentario = strtolower(trim($mensajeRaw['text']['body'] ?? ''));
+            break;
+
+        case 'interactive':
+            if (isset($mensajeRaw['interactive']['button_reply'])) {
+                $comentario = strtolower(trim($mensajeRaw['interactive']['button_reply']['id'] ?? ''));
+            } elseif (isset($mensajeRaw['interactive']['list_reply'])) {
+                $comentario = strtolower(trim($mensajeRaw['interactive']['list_reply']['id'] ?? ''));
+            } else {
+                $comentario = '';
+            }
+            break;
+
+        default:
+            $comentario = ''; // No manejado aún, como imágenes, audios, etc.
+            break;
+    }
+
+    // También puedes definir esto si lo necesitas en otra parte
+    $mensaje = $comentario;
 
 
         file_put_contents("log.txt", "[DEBUG] Datos extraídos -> ID: $idMensaje, Comentario: $comentario, Número: $numero\n", FILE_APPEND);
