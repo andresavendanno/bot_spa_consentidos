@@ -16,6 +16,8 @@ function recibirMensajes($req) {
         $idMensaje = $mensaje['id'] ?? '';
         $comentario = strtolower(trim($mensaje['text']['body'] ?? ''));
         $numero = $mensaje['from'] ?? '';
+        $tipoMensaje = $mensaje['type'] ?? 'text';
+
 
         file_put_contents("log.txt", "[DEBUG] Datos extraídos -> ID: $idMensaje, Comentario: $comentario, Número: $numero\n", FILE_APPEND);
 
