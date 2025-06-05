@@ -122,14 +122,10 @@ function recibirMensajes($req) {
 // Enviar mensaje por WhatsApp
 function EnviarMensajeWhastapp($respuesta, $numero) {
     if (!$respuesta) return;
-    file_put_contents("log.txt", "[" . date("Y-m-d H:i:s") . "] Respuesta a enviar: " . json_encode($respuesta) . " para $numero" . PHP_EOL, FILE_APPEND);
 
-    if (is_array($respuesta)) {
-        $respuesta['to'] = $numero;
-        $respuesta['messaging_product'] = 'whatsapp';
-        $data = json_encode($respuesta);
-    } else {
-        $data = json_encode([
+    // Si es solo texto
+    if (is_string($respuesta)) {
+        $data = [
             "messaging_product" => "whatsapp",
             "recipient_type" => "individual",
             "to" => $numero,
@@ -138,14 +134,26 @@ function EnviarMensajeWhastapp($respuesta, $numero) {
                 "preview_url" => false,
                 "body" => $respuesta
             ]
-        ]);
+        ];
     }
+    // Si es respuesta estructurada (ej: botones)
+    elseif (is_array($respuesta)) {
+        $respuesta['to'] = $numero;
+        $respuesta['messaging_product'] = "whatsapp";
+        $respuesta['recipient_type'] = "individual";
+        $data = $respuesta;
+    } else {
+        file_put_contents("error_log.txt", "[".date("Y-m-d H:i:s")."] Tipo de respuesta desconocido".PHP_EOL, FILE_APPEND);
+        return;
+    }
+
+    $jsonData = json_encode($data);
 
     $options = [
         'http' => [
             'method' => 'POST',
             'header' => "Content-type: application/json\r\nAuthorization: Bearer ".WHATSAPP_TOKEN."\r\n",
-            'content' => $data,
+            'content' => $jsonData,
             'ignore_errors' => true
         ]
     ];
@@ -156,10 +164,9 @@ function EnviarMensajeWhastapp($respuesta, $numero) {
     if ($response === false) {
         file_put_contents("error_log.txt", "[".date("Y-m-d H:i:s")."] Error al enviar mensaje a $numero".PHP_EOL, FILE_APPEND);
     } else {
-        file_put_contents("log.txt", "[".date("Y-m-d H:i:s")."] Mensaje enviado a $numero: $data".PHP_EOL, FILE_APPEND);
+        file_put_contents("log.txt", "[".date("Y-m-d H:i:s")."] Mensaje enviado a $numero: " . print_r($data, true) . PHP_EOL, FILE_APPEND);
     }
 }
-
 
 // Lógica principal
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
