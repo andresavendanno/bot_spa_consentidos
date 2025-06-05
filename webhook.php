@@ -94,9 +94,22 @@ function recibirMensajes($req) {
         $stmt = $conexion->prepare("SELECT COUNT(*) FROM usuarios_final WHERE numero = ?");
         file_put_contents("log.txt", "[DEBUG] Preparación de consulta OK\n", FILE_APPEND);
         $stmt->execute([$numero]);
-        $esRegistrado = $stmt->fetchColumn() > 0;
-        file_put_contents("log.txt", "[DEBUG] Resultado consulta: " . ($esRegistrado ? "Registrado" : "No registrado") . PHP_EOL, FILE_APPEND);
 
+        $count = $stmt->fetchColumn();
+        file_put_contents("log.txt", "[DEBUG] Usuario registrado: " . $count . PHP_EOL, FILE_APPEND);
+
+        $esRegistrado = $count > 0;
+
+        if ($esRegistrado) {
+            file_put_contents("log.txt", "[DEBUG] Enviando a Usuario.php\n", FILE_APPEND);
+            $usuario = new Usuario();
+            $respuesta = $usuario->procesarPaso($numero, $comentario);
+        } else {
+            file_put_contents("log.txt", "[DEBUG] Enviando a Registro.php\n", FILE_APPEND);
+            $registro = new Registro();
+            $respuesta = $registro->procesarPaso($numero, $comentario);
+            $registro->insert_registro($numero, $comentario);
+        }
 
 
         // Redirigir a la clase correspondiente
@@ -125,7 +138,10 @@ function recibirMensajes($req) {
 // Enviar mensaje a WhatsApp
 function EnviarMensajeWhastapp($respuesta, $numero) {
     if (!$respuesta) return;
-    file_put_contents("log.txt", "[Check] Enviando respuesta tipo: " . gettype($respuesta) . PHP_EOL, FILE_APPEND);
+    file_put_contents("log.txt", "[DEBUG] Entrando a EnviarMensajeWhastapp()\n", FILE_APPEND);
+file_put_contents("log.txt", "[DEBUG] Tipo de respuesta: " . gettype($respuesta) . PHP_EOL, FILE_APPEND);
+file_put_contents("log.txt", "[DEBUG] Contenido respuesta: " . print_r($respuesta, true) . PHP_EOL, FILE_APPEND);
+
 
     if (is_string($respuesta)) {
         $data = [
