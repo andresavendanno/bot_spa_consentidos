@@ -1,5 +1,6 @@
 <?php
 require_once("config/conexion.php");
+require_once("config/constantes.php");
 
 // ✅ Verifica si un mensaje ya fue procesado
 function mensajeYaProcesado($id) {
