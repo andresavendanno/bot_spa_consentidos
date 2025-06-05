@@ -101,6 +101,7 @@ function recibirMensajes($req) {
 }
 
 
+
 // Enviar mensaje por WhatsApp
 function EnviarMensajeWhastapp($respuesta, $numero) {
     if (!$respuesta) return;
