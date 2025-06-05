@@ -39,7 +39,7 @@ class Registro extends Conectar {
             if (!$usuario) {
                 $stmt = $conectar->prepare("INSERT INTO usuarios_temp (numero, paso, fecha_creacion) VALUES (?, 1, now())");
                 $stmt->execute([$numero]);
-                return "¡Hola soy Botita! ¡Bienvenido a Spa Consentidos! Veo que eres nuevo. Para registrar a tu consentido, por favor dime su nombre.";
+                return "¡Hola soy BOTita 🐾! ¡Gracias por comunicarte con Spa Consentidos! Veo que eres nuevo. Para registrar a tu consentido, nos gustaría saber su nombre 😊";
             }
 
             $paso = (int)$usuario['paso'];
@@ -59,9 +59,12 @@ class Registro extends Conectar {
                         return "Por favor ingresa un número válido entre 5 y 30 para el peso (sin 'kg').";
                     }
                     $this->actualizarPaso($numero, 'peso', $mensaje, 4);
-                    return "¿Cuánto tiempo ha pasado desde su último baño?\nResponde con una opción:\n• Menos de 1 mes\n• Entre 1 y 3 meses\n• Más de 3 meses";
+                    return "¿Cuánto tiempo ha pasado desde su último baño?\n(Ingresa solo el número de meses, entre 0 y 12)";
 
                 case 4:
+                    if (!is_numeric($mensaje) || $mensaje < 0 || $mensaje > 12) {
+                        return "Por favor ingresa un número válido entre 0 y 12 para los meses desde su último baño.";
+                    }
                     $this->actualizarPaso($numero, 'ultimo_bano', $mensaje, 5);
                     return "¿Qué edad tiene tu consentido?\n(Ingresa solo un número entre 1 y 25, sin años)";
 
@@ -78,10 +81,11 @@ class Registro extends Conectar {
                     return "¿Deseas enviar una foto para ver el estado de su manto?\nPuedes enviarla ahora, o responde con *Sin foto* si no deseas enviar una.";
 
                 case 7:
-                    if (strtolower($mensaje) !== "sin foto" && strpos($mensaje, "image") === false) {
+                    if (strtolower($mensaje) !== "sin foto" && strpos(strtolower($mensaje), "image") === false) {
                         return "Si deseas continuar sin foto, responde con *Sin foto*. O bien, envía una imagen.";
                     }
-                    $this->actualizarPaso($numero, 'foto_opcional', $mensaje, 8); // Se puede almacenar o ignorar este campo
+                    $this->actualizarSoloPaso($numero, 8);
+                    $this->insert_log($numero, "Foto aceptada (sin guardar), avanzando a paso 8");
                     return "¿Cuál es tu nombre?";
 
                 case 8:
@@ -110,6 +114,17 @@ class Registro extends Conectar {
             $stmt->execute([$valor, $siguientePaso, $numero]);
         } catch (Exception $e) {
             file_put_contents("error_log.txt", "[actualizarPaso][ERROR] $campo: " . $e->getMessage() . PHP_EOL, FILE_APPEND);
+        }
+    }
+
+    private function actualizarSoloPaso($numero, $siguientePaso) {
+        try {
+            $conectar = parent::conexion();
+            $sql = "UPDATE usuarios_temp SET paso = ? WHERE numero = ?";
+            $stmt = $conectar->prepare($sql);
+            $stmt->execute([$siguientePaso, $numero]);
+        } catch (Exception $e) {
+            file_put_contents("error_log.txt", "[actualizarSoloPaso][ERROR] " . $e->getMessage() . PHP_EOL, FILE_APPEND);
         }
     }
 
