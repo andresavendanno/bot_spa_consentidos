@@ -1,4 +1,6 @@
 <?php
+file_put_contents("log.txt", "[DEBUG] Entrando a recibirMensajes()\n", FILE_APPEND);// ayuda a ver si al menos está llegando acá
+
 require_once("models/Registro.php");
 require_once("models/Usuario.php");
 require_once("helpers/funciones.php");
