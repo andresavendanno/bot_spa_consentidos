@@ -1,6 +1,6 @@
 <?php
 require_once(__DIR__ . "/../config/conexion.php");
-require_once(__DIR__ . "/../models/servicio.php.php");
+require_once(__DIR__ . "/../models/servicio.php");
 
 class Registro extends Conectar {
 
