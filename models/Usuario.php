@@ -4,13 +4,24 @@ require_once("models/Registro.php"); // Asegurate de incluir esto si vas a usar 
 
 class Usuario extends Conectar {
 
-    public function procesarPaso($numero, $mensaje) {
+    public function procesarPaso($numero, $mensaje, $tipoMensaje = "text") {
         file_put_contents("log.txt", "[DEBUG][Usuario.php] Entró a procesarPaso con mensaje bruto: '$mensaje'\n", FILE_APPEND);
         try {
             $conectar = parent::conexion();
             parent::set_names();
 
             file_put_contents("log.txt", "[DEBUG][Usuario.php] Conectado a BD\n", FILE_APPEND);
+
+            // 🔄 Si está en medio de un registro, redirigir a Registro.php
+            $stmt = $conectar->prepare("SELECT * FROM usuarios_temp WHERE numero = ?");
+            $stmt->execute([$numero]);
+            $enRegistro = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if ($enRegistro) {
+                file_put_contents("log.txt", "[Usuario.php][DEBUG] Usuario está en registro. Redirigiendo a Registro.php\n", FILE_APPEND);
+                $registro = new Registro();
+                return $registro->procesarPaso($numero, $mensaje, $tipoMensaje);
+            }
 
             // 🔹 Obtener consentidos
             $stmt = $conectar->prepare("SELECT DISTINCT consentido FROM usuarios_final WHERE numero = ?");
@@ -76,12 +87,12 @@ class Usuario extends Conectar {
                 }
             }
 
-           // 🔹 Si eligió agregar nuevo
+            // 🔹 Si eligió agregar nuevo
             if ($mensaje === "nuevo") {
                 file_put_contents("log.txt", "[DEBUG][Usuario.php] Entró a opción 'nuevo'\n", FILE_APPEND);
 
                 $registro = new Registro();
-                return $registro->procesarPaso($numero, "inicio_manual");
+                return $registro->procesarPaso($numero, "inicio_manual", $tipoMensaje);
             }
 
             file_put_contents("log.txt", "[DEBUG][Usuario.php] Mensaje no reconocido, devolviendo respuesta default\n", FILE_APPEND);
