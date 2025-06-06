@@ -4,7 +4,10 @@ file_put_contents("log.txt", "[DEBUG] mensajes.php fue incluido correctamente\n"
 require_once("models/Registro.php");
 require_once("models/Usuario.php");
 require_once("helpers/funciones.php");
-file_put_contents("log.txt", "[DEBUG] mensajes.php no tiene problema llamando los modelos\n", FILE_APPEND);
+
+
+file_put_contents("log.txt", "[DEBUG] A punto de llamar a recibirMensajes()\n", FILE_APPEND);
+recibirMensajes($data);
 
 function recibirMensajes($req) {
         file_put_contents("log.txt", "[DEBUG] Entrando a recibirMensajes()\n", FILE_APPEND);// ayuda a ver si al menos está llegando acá
