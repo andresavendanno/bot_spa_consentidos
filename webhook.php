@@ -13,6 +13,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     file_put_contents("log.txt", "[" . date("Y-m-d H:i:s") . "] [Webhook] Cuerpo POST recibido: " . $input . PHP_EOL, FILE_APPEND);
 
     $data = json_decode($input, true);
+    file_put_contents("log.txt", "[Webhook] JSON decodificado correctamente\n", FILE_APPEND);
+    file_put_contents("log.txt", "Payload recibido: " . json_encode($data) . "\n", FILE_APPEND);
+
+    // ✅ Filtro para evitar procesar actualizaciones de estado (sent, delivered, read, etc.)
+    $hasMessages = isset($data['entry'][0]['changes'][0]['value']['messages']);
+
+    if (!$hasMessages) {
+        file_put_contents("log.txt", "[DEBUG] ⚠️ Payload sin mensajes. Probablemente es un status.\n", FILE_APPEND);
+        return;
+    }
     
     if (json_last_error() !== JSON_ERROR_NONE) {
         file_put_contents("error_log.txt", "[" . date("Y-m-d H:i:s") . "] [Webhook][ERROR] JSON malformado: " . json_last_error_msg() . PHP_EOL, FILE_APPEND);
