@@ -1,7 +1,7 @@
 <?php
-require_once(__DIR__ . "/../config/conexion.php");
-require_once(__DIR__ . "/../models/Registro.php"); 
-require_once(__DIR__ . "/../models/servicio.php");
+require_once("config/conexion.php");
+require_once("models/Registro.php"); 
+require_once("models/servicio.php");
 
 class Usuario extends Conectar {
 

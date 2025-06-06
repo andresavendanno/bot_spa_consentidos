@@ -1,6 +1,6 @@
 <?php
-require_once(__DIR__ . "/../config/conexion.php");
-require_once(__DIR__ . "/../models/servicio.php");
+require_once("config/conexion.php");
+require_once("models/Servicio.php");
 
 class Registro extends Conectar {
 
@@ -101,7 +101,8 @@ class Registro extends Conectar {
                     $this->actualizarPaso($numero, 'tutor', $mensaje, 9);
                     $this->moverAFinal($numero);
                     $servicio = new Servicio();
-                    return $servicio->procesarPaso($numero, "inicio", $usuario['consentido']);
+                    return $servicio->procesarPaso($numero, "inicio");
+
 
                 default:
                     return "Hubo un error al identificar el paso. Escribe *reiniciar* para comenzar de nuevo.";

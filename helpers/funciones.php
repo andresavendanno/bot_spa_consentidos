@@ -1,6 +1,6 @@
 <?php
-require_once(__DIR__ . "/../config/conexion.php");
-require_once(__DIR__ . "/../config/constantes.php");
+require_once("config/conexion.php");
+require_once("config/constantes.php");
 
 // ✅ Verifica si un mensaje ya fue procesado
 function mensajeYaProcesado($id) {

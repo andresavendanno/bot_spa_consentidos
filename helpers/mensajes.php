@@ -1,82 +1,104 @@
 <?php
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
-
-file_put_contents("log.txt", "[DEBUG] mensajes.php fue incluido correctamente\n", FILE_APPEND);
-
-require_once(__DIR__ . "/../models/Registro.php");
-require_once(__DIR__ . "/../models/Usuario.php");
-require_once(__DIR__ . "/funciones.php");
-
-$data = json_decode(file_get_contents('php://input'), true);
-file_put_contents("log.txt", "[DEBUG] Contenido de \$data: " . json_encode($data) . "\n", FILE_APPEND);
-file_put_contents("log.txt", "[DEBUG] A punto de llamar a recibirMensajes()\n", FILE_APPEND);
-recibirMensajes($data);
+require_once("models/Registro.php");
+require_once("models/Usuario.php");
+require_once("helpers/funciones.php");
 
 function recibirMensajes($req) {
-        file_put_contents("log.txt", "[DEBUG] Entrando a recibirMensajes()\n", FILE_APPEND);// ayuda a ver si al menos está llegando acá
     try {
-        file_put_contents("log.txt", "[DEBUG] Entrando a recibirMensajes() try(1)\n", FILE_APPEND);// ayuda a ver si al menos está llegando acá
-        file_put_contents("log.txt", "[" . date("Y-m-d H:i:s") . "] 🚀 Webhook llamado\n", FILE_APPEND);
-        $input = json_encode($req);
-        file_put_contents("log.txt", "[" . date("Y-m-d H:i:s") . "] 🔍 Contenido bruto recibido: $input\n", FILE_APPEND);
+        file_put_contents("log.txt", "[".date("Y-m-d H:i:s")."] Payload recibido: ".json_encode($req).PHP_EOL, FILE_APPEND);
 
         if (!isset($req['entry'][0]['changes'][0]['value']['messages'])) {
             file_put_contents("log.txt", "[DEBUG] No hay mensajes en payload.\n", FILE_APPEND);
             return;
         }
 
-        $mensajeRaw = $req['entry'][0]['changes'][0]['value']['messages'][0];
-        $tipoMensaje = $mensajeRaw['type'] ?? 'text';
-        $numero = $mensajeRaw['from'] ?? '';
-        $idMensaje = $mensajeRaw['id'] ?? '';
+       $mensajeRaw = $req['entry'][0]['changes'][0]['value']['messages'][0]; // No usar $mensaje aquí para evitar colisiones
 
-        // Interpretar mensaje
-        switch ($tipoMensaje) {
-            case 'text':
-                $comentario = strtolower(trim($mensajeRaw['text']['body'] ?? ''));
-                break;
-            case 'interactive':
-                $comentario = strtolower(trim(
-                    $mensajeRaw['interactive']['button_reply']['id'] ??
-                    $mensajeRaw['interactive']['list_reply']['id'] ?? ''
-                ));
-                break;
-            default:
+$idMensaje = $mensajeRaw['id'] ?? '';
+$tipoMensaje = $mensajeRaw['type'] ?? 'text';
+$numero = $mensajeRaw['from'] ?? '';
+
+// Detectar correctamente el contenido del mensaje según tipo
+    switch ($tipoMensaje) {
+        case 'text':
+            $comentario = strtolower(trim($mensajeRaw['text']['body'] ?? ''));
+            break;
+
+        case 'interactive':
+            if (isset($mensajeRaw['interactive']['button_reply'])) {
+                $comentario = strtolower(trim($mensajeRaw['interactive']['button_reply']['id'] ?? ''));
+            } elseif (isset($mensajeRaw['interactive']['list_reply'])) {
+                $comentario = strtolower(trim($mensajeRaw['interactive']['list_reply']['id'] ?? ''));
+            } else {
                 $comentario = '';
-        }
+            }
+            break;
+
+        default:
+            $comentario = ''; // No manejado aún, como imágenes, audios, etc.
+            break;
+    }
+
+    // También puedes definir esto si lo necesitas en otra parte
+    $mensaje = $comentario;
+
+
+        file_put_contents("log.txt", "[DEBUG] Datos extraídos -> ID: $idMensaje, Comentario: $comentario, Número: $numero\n", FILE_APPEND);
 
         if (empty($comentario) || empty($numero) || empty($idMensaje)) {
-            file_put_contents("log.txt", "[DEBUG] Mensaje inválido o incompleto.\n", FILE_APPEND);
+            file_put_contents("log.txt", "[DEBUG] Mensaje inválido o incompleto, saliendo...\n", FILE_APPEND);
             return;
         }
 
-        file_put_contents("log.txt", "[DEBUG] Mensaje recibido de $numero: $comentario\n", FILE_APPEND);
+        file_put_contents("log.txt", "[".date("Y-m-d H:i:s")."] Mensaje de $numero: $comentario".PHP_EOL, FILE_APPEND);
+        file_put_contents("log.txt", "[DEBUG] Entrando a verificación de duplicados\n", FILE_APPEND);
 
         if (mensajeYaProcesado($idMensaje)) {
-            file_put_contents("log.txt", "[DEBUG] Duplicado ignorado: $idMensaje\n", FILE_APPEND);
+            file_put_contents("log.txt", "[DEBUG] Ya procesado, ignorando\n", FILE_APPEND);
+            file_put_contents("log.txt", "[".date("Y-m-d H:i:s")."] Duplicado ignorado: $idMensaje\n", FILE_APPEND);
             return;
         }
 
+        file_put_contents("log.txt", "[DEBUG] No es duplicado, marcando como procesado\n", FILE_APPEND);
         marcarMensajeComoProcesado($idMensaje);
+        file_put_contents("log.txt", "[DEBUG] Marcado OK\n", FILE_APPEND);
         limpiarMensajesProcesados();
+        file_put_contents("log.txt", "[DEBUG] Limpieza OK\n", FILE_APPEND);
 
+        file_put_contents("log.txt", "[DEBUG] Antes de conectar a BD\n", FILE_APPEND);
         $conectar = new Conectar();
         $conexion = $conectar->conexion();
+        file_put_contents("log.txt", "[DEBUG] Conexión a base de datos OK\n", FILE_APPEND);
 
         $stmt = $conexion->prepare("SELECT COUNT(*) FROM usuarios_final WHERE numero = ?");
         $stmt->execute([$numero]);
         $esRegistrado = $stmt->fetchColumn() > 0;
 
+        file_put_contents("log.txt", "[DEBUG] Usuario registrado? " . ($esRegistrado ? "Sí" : "No") . "\n", FILE_APPEND);
+
         if ($esRegistrado) {
+    file_put_contents("log.txt", "[DEBUG] Procesando paso con Usuario.php\n", FILE_APPEND);
+    try {
             $usuario = new Usuario();
             $respuesta = $usuario->procesarPaso($numero, $comentario, $tipoMensaje);
-        } else {
-            $registro = new Registro();
-            $respuesta = $registro->procesarPaso($numero, $comentario, $tipoMensaje);
-            $registro->insert_log($numero, $comentario);
+        } catch (Throwable $e) {
+            file_put_contents("logs/error.log", "[ERROR][Usuario] " . $e->getMessage() . " en línea " . $e->getLine() . PHP_EOL, FILE_APPEND);
         }
+    } else {
+        file_put_contents("log.txt", "[DEBUG] Procesando paso con Registro.php\n", FILE_APPEND);
+        try {
+            $registro = new Registro();
+            $respuesta = $registro->procesarPaso($numero, $mensaje, $tipoMensaje);
+            file_put_contents("error_log.txt", "[DEBUG] Llamando a insert_log...\n", FILE_APPEND);
+            $registro->insert_log($numero, $comentario);  // <- este puede ser problemático
+            file_put_contents("error_log.txt", "[DEBUG] insert_log ejecutado\n", FILE_APPEND);
+
+        } catch (Throwable $e) {
+            file_put_contents("logs/error.log", "[ERROR][Registro] " . $e->getMessage() . " en línea " . $e->getLine() . PHP_EOL, FILE_APPEND);
+        }
+    }
+
+        file_put_contents("log.txt", "[DEBUG] Respuesta recibida para envío: ".print_r($respuesta, true)."\n", FILE_APPEND);
 
         EnviarMensajeWhatsApp($respuesta, $numero);
 
@@ -84,4 +106,3 @@ function recibirMensajes($req) {
         file_put_contents("error_log.txt", "[Webhook ERROR] " . $e->getMessage() . PHP_EOL, FILE_APPEND);
     }
 }
-
