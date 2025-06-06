@@ -1,11 +1,16 @@
 <?php
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
 file_put_contents("log.txt", "[DEBUG] mensajes.php fue incluido correctamente\n", FILE_APPEND);
 
-require_once("models/Registro.php");
-require_once("models/Usuario.php");
-require_once("helpers/funciones.php");
+require_once(__DIR__ . "/../models/Registro.php");
+require_once(__DIR__ . "/../models/Usuario.php");
+require_once(__DIR__ . "/funciones.php");
 
-$data = json_decode(file_get_contents('php://input'), true); // <- ESTA LÍNEA FALTABA
+$data = json_decode(file_get_contents('php://input'), true);
+file_put_contents("log.txt", "[DEBUG] Contenido de \$data: " . json_encode($data) . "\n", FILE_APPEND);
 file_put_contents("log.txt", "[DEBUG] A punto de llamar a recibirMensajes()\n", FILE_APPEND);
 recibirMensajes($data);
 
