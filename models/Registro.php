@@ -1,5 +1,6 @@
 <?php
 require_once("config/conexion.php");
+require_once("models/Servicio.php");
 
 class Registro extends Conectar {
 
@@ -99,7 +100,9 @@ class Registro extends Conectar {
                 case 8:
                     $this->actualizarPaso($numero, 'tutor', $mensaje, 9);
                     $this->moverAFinal($numero);
-                    return "✅ Registro completado, por favor espere mientras lo procesamos.";
+                    $servicio = new Servicio();
+                    return $servicio->procesarPaso($numero, "inicio");
+
 
                 default:
                     return "Hubo un error al identificar el paso. Escribe *reiniciar* para comenzar de nuevo.";
