@@ -101,7 +101,6 @@ class Registro extends Conectar {
                     $this->actualizarPaso($numero, 'tutor', $mensaje, 9);
                     $this->moverAFinal($numero);
                     $servicio = new Servicio();
-                    $servicio = new Servicio();
                     return $servicio->procesarPaso($numero, "inicio", $usuario['consentido']);
 
                 default:
