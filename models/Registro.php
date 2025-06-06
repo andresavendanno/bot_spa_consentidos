@@ -29,14 +29,11 @@ class Registro extends Conectar {
             $conectar = parent::conexion();
             parent::set_names();
 
-            // ⚠️ NO verificar usuarios_final aquí, porque puede estar registrando otro consentido
-
-            // Buscar si ya hay un registro en progreso
+            // Obtener el registro más reciente para este número
             $stmt = $conectar->prepare("SELECT * FROM usuarios_temp WHERE numero = ? ORDER BY id DESC LIMIT 1");
             $stmt->execute([$numero]);
             $usuario = $stmt->fetch(PDO::FETCH_ASSOC);
 
-            // Si no hay registro previo o se forzó reinicio, inicia paso 1
             if (!$usuario || $mensaje === "inicio_manual") {
                 file_put_contents("error_log.txt", "[procesarPaso][DEBUG] Usuario nuevo o inicio manual, creando registro en usuarios_temp\n", FILE_APPEND);
 
@@ -45,12 +42,13 @@ class Registro extends Conectar {
 
                 $this->insert_log($numero, "Paso 1 iniciado");
 
-                return ($mensaje === "inicio_manual")
-                    ? "¡Perfecto! Vamos a registrar a otro consentido 🐶🐱. ¿Cuál es su nombre?"
-                    : "¡Hola soy BOTita 🐾! ¡Gracias por comunicarte con Spa Consentidos! Veo que eres nuevo. Para registrar a tu consentido, nos gustaría saber su nombre 😊";
+                if ($mensaje === "inicio_manual") {
+                    return "¡Perfecto! Vamos a registrar a otro consentido 🐶🐱. ¿Cuál es su nombre?";
+                } else {
+                    return "¡Hola soy BOTita 🐾! ¡Gracias por comunicarte con Spa Consentidos! Veo que eres nuevo. Para registrar a tu consentido, nos gustaría saber su nombre 😊";
+                }
             }
 
-            // Continuar el flujo según el paso
             $paso = (int)$usuario['paso'];
 
             switch ($paso) {
@@ -90,10 +88,12 @@ class Registro extends Conectar {
 
                 case 7:
                     $mensaje_limpio = strtolower(trim($mensaje));
+
                     if ($mensaje_limpio === "sin foto" || $tipoMensaje === "image") {
                         $this->actualizarSoloPaso($numero, 8);
                         return "¿Cuál es tu nombre?";
                     }
+
                     return "Si deseas continuar sin foto, responde con *Sin foto*. O bien, envía una imagen.";
 
                 case 8:
@@ -110,6 +110,7 @@ class Registro extends Conectar {
             return "Lo siento, ocurrió un error al procesar tu información. Intenta más tarde.";
         }
     }
+
 
     private function actualizarPaso($numero, $campo, $valor, $siguientePaso) {
         try {
