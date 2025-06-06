@@ -5,7 +5,7 @@ require_once("models/Registro.php");
 require_once("models/Usuario.php");
 require_once("helpers/funciones.php");
 
-
+$data = json_decode(file_get_contents('php://input'), true); // <- ESTA LÍNEA FALTABA
 file_put_contents("log.txt", "[DEBUG] A punto de llamar a recibirMensajes()\n", FILE_APPEND);
 recibirMensajes($data);
 
