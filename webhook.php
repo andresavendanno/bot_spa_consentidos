@@ -1,5 +1,7 @@
 <?php
-file_put_contents("log.txt", "[" . date("Y-m-d H:i:s") . "] 🚀 Webhook llamado\n", FILE_APPEND);
+file_put_contents("log.txt", "[" . date("Y-m-d H:i:s") . "] 🚀 Webhook llamado\n", FILE_APPEND); //Esta al menos llamando el webhook, descarta errores de login o que whatsapp apunte a otra dirección 
+$input = file_get_contents('php://input');
+file_put_contents("log.txt", "[" . date("Y-m-d H:i:s") . "] 🔍 Contenido bruto recibido: $input" . PHP_EOL, FILE_APPEND);
 
 require_once("config/constantes.php");
 require_once("helpers/mensajes.php");
