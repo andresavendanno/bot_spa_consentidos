@@ -1,7 +1,6 @@
 <?php
 require_once("config/conexion.php");
-require_once("models/Registro.php"); 
-require_once("models/servicio.php");
+require_once("models/Registro.php"); // Asegurate de incluir esto si vas a usar Registro
 
 class Usuario extends Conectar {
 
@@ -79,17 +78,12 @@ class Usuario extends Conectar {
             if (str_starts_with($mensaje, "consentido_")) {
                 $index = (int) str_replace("consentido_", "", $mensaje) - 1;
                 file_put_contents("log.txt", "[DEBUG][Usuario.php] Seleccionó consentido index: $index\n", FILE_APPEND);
-
                 if (isset($consentidos[$index])) {
-                    $consentido = $consentidos[$index];
-                    file_put_contents("log.txt", "[DEBUG][Usuario.php] Consentido seleccionado: $consentido\n", FILE_APPEND);
-
-                    // 🔹 Llamamos al nuevo flujo de selección de servicio
-                    $servicio = new Servicio();
-                    return $servicio->procesarPaso($numero, "inicio");
+                    $msg = "Has seleccionado a *{$consentidos[$index]}*. (Aquí iría el flujo de pedir turno 🕒)";
+                    file_put_contents("log.txt", "[DEBUG][Usuario.php] Mensaje de respuesta: $msg\n", FILE_APPEND);
+                    return $msg;
                 } else {
                     file_put_contents("log.txt", "[ERROR][Usuario.php] Consentido index no encontrado\n", FILE_APPEND);
-                    return "El consentido seleccionado no existe. Intenta de nuevo.";
                 }
             }
 
