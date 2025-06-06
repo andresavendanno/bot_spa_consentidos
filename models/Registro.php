@@ -101,8 +101,8 @@ class Registro extends Conectar {
                     $this->actualizarPaso($numero, 'tutor', $mensaje, 9);
                     $this->moverAFinal($numero);
                     $servicio = new Servicio();
-                    return $servicio->procesarPaso($numero, "inicio");
-
+                    $servicio = new Servicio();
+                    return $servicio->procesarPaso($numero, "inicio", $usuario['consentido']);
 
                 default:
                     return "Hubo un error al identificar el paso. Escribe *reiniciar* para comenzar de nuevo.";

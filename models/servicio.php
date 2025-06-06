@@ -3,7 +3,7 @@ require_once("config/conexion.php");
 
 class Servicio extends Conectar {
 
-    public function procesarPaso($numero, $mensaje) {
+    public function procesarPaso($numero, $mensaje, $consentido = null)  {
         $mensaje = strtolower(trim($mensaje));
 
         try {
@@ -17,8 +17,9 @@ class Servicio extends Conectar {
 
             // Si no hay registro, iniciar flujo
             if (!$servicio) {
-                $stmt = $conectar->prepare("INSERT INTO servicio_temp (numero, paso, fecha_creacion) VALUES (?, 1, now())");
-                $stmt->execute([$numero]);
+            $stmt = $conectar->prepare("INSERT INTO servicio_temp (numero, consentido, paso, fecha_creacion) VALUES (?, ?, 1, now())");
+            $stmt->execute([$numero, $consentido]);
+
                 return "🙏 Indica el servicio principal que deseas para tu consentido:
 * Baño
 * Baño y corte
@@ -79,6 +80,7 @@ Responde con uno o escribe *ninguno*";
                                         VALUES (?, ?, ?, ?, ?, now())");
             $stmt->execute([
                 $numero,
+                $datos['consentido'],
                 $datos['tipo_servicio'],
                 $datos['servicio_adicional'],
                 $info['tutor'] ?? '',
