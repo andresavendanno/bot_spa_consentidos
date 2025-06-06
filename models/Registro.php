@@ -35,7 +35,7 @@ class Registro extends Conectar {
             $usuario = $stmt->fetch(PDO::FETCH_ASSOC);
 
             if (!$usuario || $mensaje === "inicio_manual") {
-                file_put_contents("error_log.txt", "[procesarPaso][DEBUG] Usuario nuevo o inicio manual, creando registro en usuarios_temp\n", FILE_APPEND);
+                file_put_contents("log.txt", "[Registro][DEBUG] Usuario nuevo o inicio_manual. Insertando...\n", FILE_APPEND);
 
                 $stmt = $conectar->prepare("INSERT INTO usuarios_temp (numero, paso, fecha_creacion) VALUES (?, 1, now())");
                 $stmt->execute([$numero]);

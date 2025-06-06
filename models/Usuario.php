@@ -81,9 +81,6 @@ class Usuario extends Conectar {
                 file_put_contents("log.txt", "[DEBUG][Usuario.php] Entró a opción 'nuevo'\n", FILE_APPEND);
 
                 $registro = new Registro();
-                $registro->reiniciarRegistro($numero);
-                file_put_contents("log.txt", "[DEBUG][Usuario.php] Registro reiniciado desde Usuario.php\n", FILE_APPEND);
-
                 return $registro->procesarPaso($numero, "inicio_manual");
             }
 
