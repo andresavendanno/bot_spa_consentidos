@@ -1,12 +1,15 @@
 <?php
+file_put_contents("log.txt", "[DEBUG] mensajes.php fue incluido correctamente\n", FILE_APPEND);
 
 require_once("models/Registro.php");
 require_once("models/Usuario.php");
 require_once("helpers/funciones.php");
+file_put_contents("log.txt", "[DEBUG] mensajes.php no tiene problema llamando los modelos\n", FILE_APPEND);
 
 function recibirMensajes($req) {
-    try {
         file_put_contents("log.txt", "[DEBUG] Entrando a recibirMensajes()\n", FILE_APPEND);// ayuda a ver si al menos está llegando acá
+    try {
+        file_put_contents("log.txt", "[DEBUG] Entrando a recibirMensajes() try(1)\n", FILE_APPEND);// ayuda a ver si al menos está llegando acá
         file_put_contents("log.txt", "[" . date("Y-m-d H:i:s") . "] 🚀 Webhook llamado\n", FILE_APPEND);
         $input = json_encode($req);
         file_put_contents("log.txt", "[" . date("Y-m-d H:i:s") . "] 🔍 Contenido bruto recibido: $input\n", FILE_APPEND);
