@@ -20,7 +20,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $hasMessages = isset($data['entry'][0]['changes'][0]['value']['messages']);
 
     if (!$hasMessages) {
-        file_put_contents("log.txt", "[DEBUG] ⚠️ Payload sin mensajes. Probablemente es un status.\n", FILE_APPEND);
+        file_put_contents("log.txt", "[WEBHOOK][DEBUG] ⚠️ Payload sin mensajes. Probablemente es un status.\n", FILE_APPEND);
         return;
     }
     
