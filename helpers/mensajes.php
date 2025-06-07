@@ -14,12 +14,24 @@ function recibirMensajes($req) {
 
        $mensajeRaw = $req['entry'][0]['changes'][0]['value']['messages'][0]; // No usar $mensaje aquí para evitar colisiones
 
-$idMensaje = $mensajeRaw['id'] ?? '';
-$tipoMensaje = $mensajeRaw['type'] ?? 'text';
-$numero = $mensajeRaw['from'] ?? '';
+        $idMensaje = $mensajeRaw['id'] ?? '';
+        $tipoMensaje = $mensajeRaw['type'] ?? 'text';
+        $numero = $mensajeRaw['from'] ?? '';
 
-// Detectar correctamente el contenido del mensaje según tipo
-    switch ($tipoMensaje) {
+        if (mensajeYaProcesado($idMensaje)) {
+            file_put_contents("log.txt", "[DEBUG] Ya procesado, ignorando\n", FILE_APPEND);
+            file_put_contents("log.txt", "[".date("Y-m-d H:i:s")."] Duplicado ignorado: $idMensaje\n", FILE_APPEND);
+            return;
+        }
+
+        file_put_contents("log.txt", "[DEBUG] No es duplicado, marcando como procesado\n", FILE_APPEND);
+        marcarMensajeComoProcesado($idMensaje);
+        file_put_contents("log.txt", "[DEBUG] Marcado OK\n", FILE_APPEND);
+        limpiarMensajesProcesados();
+        file_put_contents("log.txt", "[DEBUG] Limpieza OK\n", FILE_APPEND);
+
+        // Detectar correctamente el contenido del mensaje según tipo
+        switch ($tipoMensaje) {
         case 'text':
             $comentario = strtolower(trim($mensajeRaw['text']['body'] ?? ''));
             break;
@@ -52,18 +64,6 @@ $numero = $mensajeRaw['from'] ?? '';
 
         file_put_contents("log.txt", "[".date("Y-m-d H:i:s")."] Mensaje de $numero: $comentario".PHP_EOL, FILE_APPEND);
         file_put_contents("log.txt", "[DEBUG] Entrando a verificación de duplicados\n", FILE_APPEND);
-
-        if (mensajeYaProcesado($idMensaje)) {
-            file_put_contents("log.txt", "[DEBUG] Ya procesado, ignorando\n", FILE_APPEND);
-            file_put_contents("log.txt", "[".date("Y-m-d H:i:s")."] Duplicado ignorado: $idMensaje\n", FILE_APPEND);
-            return;
-        }
-
-        file_put_contents("log.txt", "[DEBUG] No es duplicado, marcando como procesado\n", FILE_APPEND);
-        marcarMensajeComoProcesado($idMensaje);
-        file_put_contents("log.txt", "[DEBUG] Marcado OK\n", FILE_APPEND);
-        limpiarMensajesProcesados();
-        file_put_contents("log.txt", "[DEBUG] Limpieza OK\n", FILE_APPEND);
 
         file_put_contents("log.txt", "[DEBUG] Antes de conectar a BD\n", FILE_APPEND);
         $conectar = new Conectar();
