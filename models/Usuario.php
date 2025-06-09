@@ -76,11 +76,24 @@ class Usuario extends Conectar {
             if (str_starts_with($mensaje, "consentido_")) {
                 $index = (int) str_replace("consentido_", "", $mensaje) - 1;
                 if (isset($consentidos[$index])) {
-                    $msg = "Has seleccionado a *{$consentidos[$index]}*. (Aquí iría el flujo de pedir turno 🕒)";
-                    file_put_contents("log.txt", "[DEBUG][Usuario.php] Mensaje de respuesta: $msg\n", FILE_APPEND);
-                    return $msg;
-                } else {
-                    file_put_contents("log.txt", "[ERROR][Usuario.php] Consentido index no encontrado\n", FILE_APPEND);
+                    $consentido = $consentidos[$index];
+
+                    // 1. Guardar consentido en la tabla temporal
+                    require_once __DIR__ . '/../config/conexion.php';
+                    global $mysqli;
+
+                    $stmt = $mysqli->prepare("INSERT INTO servicio_temp (numero, consentido, paso) VALUES (?, ?, 9)
+                                            ON DUPLICATE KEY UPDATE consentido = VALUES(consentido), paso = 9");
+                    $stmt->bind_param("ss", $numero, $consentido);
+                    $stmt->execute();
+
+                    // 2. Actualizar paso también en usuarios_temp
+                    $stmt2 = $mysqli->prepare("UPDATE usuarios_temp SET paso = 9, consentido = ? WHERE numero = ?");
+                    $stmt2->bind_param("ss", $consentido, $numero);
+                    $stmt2->execute();
+
+                    // 3. No devolver mensaje aquí: lo maneja webhook.php → Servicios.php
+                    return null;
                 }
             }
 

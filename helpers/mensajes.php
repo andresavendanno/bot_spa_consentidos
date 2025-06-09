@@ -75,12 +75,30 @@ function recibirMensajes($req) {
         file_put_contents("log.txt", "[MENSAJES][DEBUG] Usuario registrado? " . ($esRegistrado ? "Sí" : "No") . "\n", FILE_APPEND);
 
         if ($esRegistrado) {
-    file_put_contents("log.txt", "[MENSAJES][DEBUG] Procesando paso con Usuario.php\n", FILE_APPEND);
-    try {
-            $usuario = new Usuario();
-            $respuesta = $usuario->procesarPaso($numero, $comentario, $tipoMensaje);
+        file_put_contents("log.txt", "[MENSAJES][DEBUG] Consultando paso actual del usuario...\n", FILE_APPEND);
+
+        try {
+            // Obtener paso desde usuarios_temp
+            $stmt = $conexion->prepare("SELECT * FROM usuarios_temp WHERE numero = ?");
+            $stmt->execute([$numero]);
+            $usuarioTemp = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            $paso = (int)($usuarioTemp['paso'] ?? 1);
+            $usuarioTemp['numero'] = $numero; // por si no viene
+
+            if ($paso >= 9 && $paso <= 11) {
+                file_put_contents("log.txt", "[MENSAJES][DEBUG] Procesando paso con Servicios.php\n", FILE_APPEND);
+                require_once("models/Servicios.php");
+                $servicios = new Servicios();
+                $respuesta = $servicios->manejar($comentario, $usuarioTemp);
+            } else {
+                file_put_contents("log.txt", "[MENSAJES][DEBUG] Procesando paso con Usuario.php\n", FILE_APPEND);
+                $usuario = new Usuario();
+                $respuesta = $usuario->procesarPaso($numero, $comentario, $tipoMensaje);
+            }
+
         } catch (Throwable $e) {
-            file_put_contents("logs/error.log", "[ERROR][Usuario] " . $e->getMessage() . " en línea " . $e->getLine() . PHP_EOL, FILE_APPEND);
+            file_put_contents("logs/error.log", "[ERROR][Usuario/Servicios] " . $e->getMessage() . " en línea " . $e->getLine() . PHP_EOL, FILE_APPEND);
         }
     } else {
         file_put_contents("log.txt", "[MENSAJES][DEBUG] Procesando paso con Registro.php\n", FILE_APPEND);

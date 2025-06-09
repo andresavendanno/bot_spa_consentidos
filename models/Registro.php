@@ -58,25 +58,25 @@ class Registro extends Conectar {
 
                 case 2:
                     $this->actualizarPaso($numero, 'raza', $mensaje, 3);
-                    return "¿Cuál es su peso aproximado?\n(Ingresa solo un número entre 5 y 30, sin kg)";
+                    return "¿Cuál es su peso aproximado?\n(Ingresa solo un número entre 3 y 60, sin kg)";
 
                 case 3:
-                    if (!is_numeric($mensaje) || $mensaje < 5 || $mensaje > 30) {
-                        return "Por favor, ingresa un peso válido entre 5 y 30 (sin letras ni 'kg').";
+                    if (!is_numeric($mensaje) || $mensaje < 3 || $mensaje > 60) {
+                        return "Por favor, ingresa un peso válido entre 3 y 60 (sin letras ni 'kg').";
                     }
                     $this->actualizarPaso($numero, 'peso', $mensaje, 4);
                     return "¿Cuánto tiempo ha pasado desde su último baño?\nResponde con un número en meses.";
 
                 case 4:
-                    if (!is_numeric($mensaje) || $mensaje < 0 || $mensaje > 24) {
-                        return "Por favor, indica el tiempo en meses con un número válido (0 a 24).";
+                    if (!is_numeric($mensaje) || $mensaje < 0 || $mensaje > 6) {
+                        return "Por favor, indica el tiempo en meses con un número válido (0 a 6).";
                     }
                     $this->actualizarPaso($numero, 'ultimo_bano', $mensaje, 5);
-                    return "¿Qué edad tiene tu consentido?\n(Ingresa solo un número entre 1 y 25, sin años)";
+                    return "¿Qué edad tiene tu consentido?\n(Ingresa solo un número entre 1 y 15, sin años)";
 
                 case 5:
-                    if (!is_numeric($mensaje) || $mensaje < 1 || $mensaje > 25) {
-                        return "Por favor, indica una edad válida entre 1 y 25 años.";
+                    if (!is_numeric($mensaje) || $mensaje < 1 || $mensaje > 15) {
+                        return "Por favor, indica una edad válida entre 1 y 15 años.";
                     }
                     $this->actualizarPaso($numero, 'edad', $mensaje, 6);
                     $aviso = ($mensaje > 9) ? "Para consentidos gerontes solo atendemos en el horario de las 10h para garantizar una experiencia tranquila. 🕙\n" : "";
