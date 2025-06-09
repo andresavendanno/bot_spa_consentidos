@@ -28,8 +28,6 @@ class Usuario extends Conectar {
             $stmt->execute([$numero]);
             $consentidos = $stmt->fetchAll(PDO::FETCH_COLUMN);
 
-            file_put_contents("log.txt", "[DEBUG][Usuario.php] Consentidos obtenidos: " . print_r($consentidos, true), FILE_APPEND);
-
             $mensaje = trim(strtolower($mensaje));
             file_put_contents("log.txt", "[DEBUG][Usuario.php] Mensaje normalizado: '$mensaje'\n", FILE_APPEND);
 
@@ -77,7 +75,6 @@ class Usuario extends Conectar {
             // 🔹 Si seleccionó un consentido existente
             if (str_starts_with($mensaje, "consentido_")) {
                 $index = (int) str_replace("consentido_", "", $mensaje) - 1;
-                file_put_contents("log.txt", "[DEBUG][Usuario.php] Seleccionó consentido index: $index\n", FILE_APPEND);
                 if (isset($consentidos[$index])) {
                     $msg = "Has seleccionado a *{$consentidos[$index]}*. (Aquí iría el flujo de pedir turno 🕒)";
                     file_put_contents("log.txt", "[DEBUG][Usuario.php] Mensaje de respuesta: $msg\n", FILE_APPEND);

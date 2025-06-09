@@ -5,7 +5,7 @@ require_once("helpers/funciones.php");
 
 function recibirMensajes($req) {
     try {
-        file_put_contents("log.txt", "[".date("Y-m-d H:i:s")."] Payload recibido: ".json_encode($req).PHP_EOL, FILE_APPEND);
+        file_put_contents("log.txt", "[MENSAJES][".date("Y-m-d H:i:s")."] Payload recibido: ".json_encode($req).PHP_EOL, FILE_APPEND);
 
         if (!isset($req['entry'][0]['changes'][0]['value']['messages'])) {
             file_put_contents("log.txt", "[MENSAJES][DEBUG] No hay mensajes en payload.\n", FILE_APPEND);
@@ -19,7 +19,6 @@ function recibirMensajes($req) {
         $numero = $mensajeRaw['from'] ?? '';
 
         if (mensajeYaProcesado($idMensaje)) {
-            file_put_contents("log.txt", "[MENSAJES][DEBUG] Ya procesado, ignorando\n", FILE_APPEND);
             file_put_contents("log.txt", "[".date("Y-m-d H:i:s")."] Duplicado ignorado: $idMensaje\n", FILE_APPEND);
             return;
         }
@@ -28,7 +27,7 @@ function recibirMensajes($req) {
             return;
         }
         marcarMensajeComoProcesado($idMensaje);
-        file_put_contents("log.txt", "[MENSAJES][DEBUG] Marcado OK\n", FILE_APPEND);
+        //file_put_contents("log.txt", "[MENSAJES][DEBUG] Marcado OK\n", FILE_APPEND);
         limpiarMensajesProcesados();
 
         // Detectar correctamente el contenido del mensaje según tipo
@@ -55,7 +54,7 @@ function recibirMensajes($req) {
     // También puedes definir esto si lo necesitas en otra parte
     $mensaje = $comentario;
 
-
+        
         file_put_contents("log.txt", "[MENSAJES][DEBUG] Datos extraídos -> ID: $idMensaje, Comentario: $comentario, Número: $numero\n", FILE_APPEND);
 
         if (empty($comentario) || empty($numero) || empty($idMensaje)) {
@@ -63,10 +62,8 @@ function recibirMensajes($req) {
             return;
         }
 
-        file_put_contents("log.txt", "[MENSAJES][".date("Y-m-d H:i:s")."] Mensaje de $numero: $comentario".PHP_EOL, FILE_APPEND);
         file_put_contents("log.txt", "[MENSAJES][DEBUG] Entrando a verificación de duplicados\n", FILE_APPEND);
 
-        file_put_contents("log.txt", "[MENSAJES][DEBUG] Antes de conectar a BD\n", FILE_APPEND);
         $conectar = new Conectar();
         $conexion = $conectar->conexion();
         file_put_contents("log.txt", "[MENSAJES][DEBUG] Conexión a base de datos OK\n", FILE_APPEND);

@@ -30,7 +30,6 @@ function limpiarMensajesProcesados($max = 5000) {
 // ✅ Enviar mensaje a WhatsApp
 function EnviarMensajeWhatsApp($respuesta, $numero) {
     file_put_contents("log.txt", "[FUNCIONES][DEBUG] Entrando a EnviarMensajeWhatsApp()\n", FILE_APPEND);
-    file_put_contents("log.txt", "[FUNCIONES][DEBUG] Tipo de respuesta: " . gettype($respuesta) . "\n", FILE_APPEND);
     file_put_contents("log.txt", "[FUNCIONES][DEBUG] Contenido de respuesta: " . print_r($respuesta, true) . "\n", FILE_APPEND);
 
     if (!$respuesta) {
@@ -60,7 +59,7 @@ function EnviarMensajeWhatsApp($respuesta, $numero) {
     }
 
     $jsonData = json_encode($data);
-    file_put_contents("debug_whatsapp.json", $jsonData);
+    //file_put_contents("debug_whatsapp.json", $jsonData);
 
     $options = [
         'http' => [
@@ -74,10 +73,10 @@ function EnviarMensajeWhatsApp($respuesta, $numero) {
     $context = stream_context_create($options);
     $response = file_get_contents(WHATSAPP_URL, false, $context);
 
-    file_put_contents("log.txt", "[FUNCIONES][DEBUG] Respuesta de WhatsApp API: $response\n", FILE_APPEND);
-    file_put_contents("log.txt", "[FUNCIONES][" . date("Y-m-d H:i:s") . "] Mensaje enviado a $numero: " . print_r($data, true) . PHP_EOL, FILE_APPEND);
-
-    if ($http_response_header) {
-        file_put_contents("log.txt", "[FUNCIONES][DEBUG] Encabezados HTTP: " . print_r($http_response_header, true) . "\n", FILE_APPEND);
-    }
+    //file_put_contents("log.txt", "[FUNCIONES][DEBUG] Respuesta de WhatsApp API: $response\n", FILE_APPEND);
+    //file_put_contents("log.txt", "[FUNCIONES][" . date("Y-m-d H:i:s") . "] Mensaje enviado a $numero: " . print_r($data, true) . PHP_EOL, FILE_APPEND);
+    // revisa todo el array que devuelve whatsapp
+    //if ($http_response_header) {
+    //    file_put_contents("log.txt", "[FUNCIONES][DEBUG] Encabezados HTTP: " . print_r($http_response_header, true) . "\n", FILE_APPEND);
+    //}
 }
