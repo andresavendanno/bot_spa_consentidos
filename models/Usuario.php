@@ -68,7 +68,7 @@ class Usuario extends Conectar {
                     ]
                 ];
 
-                file_put_contents("log.txt", "[DEBUG][Usuario.php] Respuesta tipo botones generada: " . print_r($respuesta, true), FILE_APPEND);
+                //file_put_contents("log.txt", "[DEBUG][Usuario.php] Respuesta tipo botones generada: " . print_r($respuesta, true), FILE_APPEND); como se ven los botones  
                 return $respuesta;
             }
 

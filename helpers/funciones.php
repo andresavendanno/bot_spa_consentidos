@@ -29,8 +29,8 @@ function limpiarMensajesProcesados($max = 5000) {
 
 // ✅ Enviar mensaje a WhatsApp
 function EnviarMensajeWhatsApp($respuesta, $numero) {
-    file_put_contents("log.txt", "[FUNCIONES][DEBUG] Entrando a EnviarMensajeWhatsApp()\n", FILE_APPEND);
-    file_put_contents("log.txt", "[FUNCIONES][DEBUG] Contenido de respuesta: " . print_r($respuesta, true) . "\n", FILE_APPEND);
+   // file_put_contents("log.txt", "[FUNCIONES][DEBUG] Entrando a EnviarMensajeWhatsApp()\n", FILE_APPEND);
+   // file_put_contents("log.txt", "[FUNCIONES][DEBUG] Contenido de respuesta: " . print_r($respuesta, true) . "\n", FILE_APPEND);
 
     if (!$respuesta) {
         file_put_contents("log.txt", "[FUNCIONES][DEBUG] Respuesta vacía, no se enviará nada.\n", FILE_APPEND);

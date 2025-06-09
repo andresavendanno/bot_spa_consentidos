@@ -1,3 +1,3 @@
 // En este punto funciona la logica de registro nuevo, selección a usuario antiguo y registro de consentido nuevo a usuario antiguo.
-// Tambien resuelve el Bug de mensajes si no contesto el mensaje.
+// Tambien recortó la lista de Log.txt para evitar que se llene con información de más.
 // se llamará: Final de Etapas 1, 2 y 3. 

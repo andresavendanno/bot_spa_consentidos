@@ -2,7 +2,7 @@
 require_once("config/constantes.php");
 require_once("helpers/mensajes.php");
 
-file_put_contents("log.txt", "[" . date("Y-m-d H:i:s") . "] [Webhook] Método: " . $_SERVER['REQUEST_METHOD'] . PHP_EOL, FILE_APPEND);
+//file_put_contents("log.txt", "[" . date("Y-m-d H:i:s") . "] [Webhook] Método: " . $_SERVER['REQUEST_METHOD'] . PHP_EOL, FILE_APPEND); //entró a webhook
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     http_response_code(200);
@@ -20,7 +20,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $hasMessages = isset($data['entry'][0]['changes'][0]['value']['messages']);
 
     if (!$hasMessages) {
-        file_put_contents("log.txt", "[WEBHOOK][DEBUG] ⚠️ Payload sin mensajes. Probablemente es un status.\n", FILE_APPEND);
+        //file_put_contents("log.txt", "[WEBHOOK][DEBUG] ⚠️ Payload sin mensajes. Probablemente es un status.\n", FILE_APPEND);
         return;
     }
     

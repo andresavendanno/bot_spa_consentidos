@@ -5,7 +5,7 @@ require_once("helpers/funciones.php");
 
 function recibirMensajes($req) {
     try {
-        file_put_contents("log.txt", "[MENSAJES][".date("Y-m-d H:i:s")."] Payload recibido: ".json_encode($req).PHP_EOL, FILE_APPEND);
+        //file_put_contents("log.txt", "[MENSAJES][".date("Y-m-d H:i:s")."] Payload recibido: ".json_encode($req).PHP_EOL, FILE_APPEND); // entro a flujo mensajes
 
         if (!isset($req['entry'][0]['changes'][0]['value']['messages'])) {
             file_put_contents("log.txt", "[MENSAJES][DEBUG] No hay mensajes en payload.\n", FILE_APPEND);
@@ -19,7 +19,7 @@ function recibirMensajes($req) {
         $numero = $mensajeRaw['from'] ?? '';
 
         if (mensajeYaProcesado($idMensaje)) {
-            file_put_contents("log.txt", "[".date("Y-m-d H:i:s")."] Duplicado ignorado: $idMensaje\n", FILE_APPEND);
+            file_put_contents("log.txt", "[MENSAJES][".date("Y-m-d H:i:s")."] Duplicado ignorado: $idMensaje\n", FILE_APPEND);
             return;
         }
         if ($timestamp < time() - 300) {
@@ -96,7 +96,7 @@ function recibirMensajes($req) {
         }
     }
 
-        file_put_contents("log.txt", "[MENSAJES][DEBUG] Respuesta recibida para envío: ".print_r($respuesta, true)."\n", FILE_APPEND);
+        //file_put_contents("log.txt", "[MENSAJES][DEBUG] Respuesta recibida para envío: ".print_r($respuesta, true)."\n", FILE_APPEND);
 
         EnviarMensajeWhatsApp($respuesta, $numero);
 
