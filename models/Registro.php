@@ -99,10 +99,60 @@ class Registro extends Conectar {
                 case 8:
                     $this->actualizarPaso($numero, 'tutor', $mensaje, 9);
                     $this->moverAFinal($numero);
-                    return "✅ Registro completado, por favor espere mientras lo procesamos.";
+                    
+                // 1. Guardar consentido en la tabla temporal
+                    
+                    $sql1 = "INSERT INTO servicio_temp (numero, consentido, paso)
+                            VALUES (:numero, :consentido, 9)
+                            ON DUPLICATE KEY UPDATE consentido = VALUES(consentido), paso = 9";
+                    $stmt1 = $conectar->prepare($sql1);
+                    $stmt1->execute([
+                        ':numero' => $numero,
+                        ':consentido' => $consentido
+                    ]);
+
+                    $sql2 = "UPDATE usuarios_temp SET paso = 9, consentido = :consentido WHERE numero = :numero";
+                    $stmt2 = $conectar->prepare($sql2);
+                    $stmt2->execute([
+                        ':consentido' => $consentido,
+                        ':numero' => $numero
+                    ]);
+
+                    file_put_contents("log.txt", "[DEBUG][Usuario.php] Consentido guardado y paso actualizado a 9\n", FILE_APPEND);
+
+                    // 3. No devolver mensaje aquí: lo maneja webhook.php → Servicios.php
+                    require_once("models/Servicios.php");
+                    $servicios = new Servicios();
+                    $respuesta = $servicios->manejar("inicio", [ // puedes enviar "" o algo que dispare el paso 9
+                        'numero' => $numero,
+                        'consentido' => $consentido,
+                        'paso' => 9
+                    ]);
+                    return $respuesta;
+                    
+                    //return "✅ Registro completado, por favor espere mientras lo procesamos.";
+                    
+                    
+
+
 
                 default:
                     return "Hubo un error al identificar el paso. Escribe *reiniciar* para comenzar de nuevo.";
+            }
+
+                        // 🔁 Verificar si el usuario está en flujo de Servicios (paso 9, 10, 11)
+            $stmtPaso = $conectar->prepare("SELECT paso, consentido FROM servicio_temp WHERE numero = ?");
+            $stmtPaso->execute([$numero]);
+            $enFlujo = $stmtPaso->fetch(PDO::FETCH_ASSOC);
+
+            if ($enFlujo) {
+                require_once("models/Servicios.php");
+                $servicios = new Servicios();
+                return $servicios->manejar($mensaje, [
+                    'numero' => $numero,
+                    'consentido' => $enFlujo['consentido'],
+                    'paso' => $enFlujo['paso']
+                ]);
             }
 
         } catch (Throwable $e) {
