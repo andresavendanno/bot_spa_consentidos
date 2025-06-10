@@ -81,17 +81,23 @@ class Usuario extends Conectar {
 
                     // 1. Guardar consentido en la tabla temporal
                     
-                    global $mysqli;
+                    $sql1 = "INSERT INTO servicio_temp (numero, consentido, paso)
+                            VALUES (:numero, :consentido, 9)
+                            ON DUPLICATE KEY UPDATE consentido = VALUES(consentido), paso = 9";
+                    $stmt1 = $conectar->prepare($sql1);
+                    $stmt1->execute([
+                        ':numero' => $numero,
+                        ':consentido' => $consentido
+                    ]);
 
-                    $stmt = $mysqli->prepare("INSERT INTO servicio_temp (numero, consentido, paso) VALUES (?, ?, 9)
-                                            ON DUPLICATE KEY UPDATE consentido = VALUES(consentido), paso = 9");
-                    $stmt->bind_param("ss", $numero, $consentido);
-                    $stmt->execute();
+                    $sql2 = "UPDATE usuarios_temp SET paso = 9, consentido = :consentido WHERE numero = :numero";
+                    $stmt2 = $conectar->prepare($sql2);
+                    $stmt2->execute([
+                        ':consentido' => $consentido,
+                        ':numero' => $numero
+                    ]);
 
-                    // 2. Actualizar paso también en usuarios_temp
-                    $stmt2 = $mysqli->prepare("UPDATE usuarios_temp SET paso = 9, consentido = ? WHERE numero = ?");
-                    $stmt2->bind_param("ss", $consentido, $numero);
-                    $stmt2->execute();
+                    file_put_contents("log.txt", "[DEBUG][Usuario.php] Consentido guardado y paso actualizado a 9\n", FILE_APPEND);
 
                     // 3. No devolver mensaje aquí: lo maneja webhook.php → Servicios.php
                     require_once("models/Servicios.php");
