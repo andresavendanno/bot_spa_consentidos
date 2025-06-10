@@ -96,8 +96,10 @@ class Servicios extends Conectar {
     private function confirmarYGuardar($mensaje, $usuario) {
         file_put_contents("log.txt", "[DEBUG][Servicios.php] Paso 11: confirmación recibida: '$mensaje' para {$usuario['consentido']}\n", FILE_APPEND);
 
-        $conectar = parent::conexion();
+        //$conectar = parent::conexion();
 
+        //$numero = $usuario['numero'];
+        //$consentido = $usuario['consentido'];
         if (strtolower($mensaje) === 'sí' || strtolower($mensaje) === 'si') {
             $conectar = parent::conexion();
 
@@ -112,8 +114,11 @@ class Servicios extends Conectar {
             }
 
             // 2. Obtener tutor y comentario desde usuarios_final
-            $stmt = $conectar->prepare("SELECT tutor, comentario FROM usuarios_final WHERE numero = :numero ORDER BY id DESC LIMIT 1");
-            $stmt->execute([':numero' => $numero]);
+            $stmt = $conectar->prepare("SELECT tutor, comentario FROM usuarios_final WHERE numero = :numero AND consentido :consentido ORDER BY id DESC LIMIT 1");
+            $stmt->execute([
+                ':numero' => $numero,
+                ':consentido' => $consentido
+            ]);
             $datos = $stmt->fetch(PDO::FETCH_ASSOC);
 
             $tutor = $datos['tutor'] ?? '';
