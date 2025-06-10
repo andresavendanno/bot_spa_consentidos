@@ -119,6 +119,21 @@ class Usuario extends Conectar {
                 return $registro->procesarPaso($numero, "inicio_manual", $tipoMensaje);
             }
 
+            // 🔁 Verificar si el usuario está en flujo de Servicios (paso 9, 10, 11)
+            $stmtPaso = $conectar->prepare("SELECT paso, consentido FROM servicio_temp WHERE numero = ?");
+            $stmtPaso->execute([$numero]);
+            $enFlujo = $stmtPaso->fetch(PDO::FETCH_ASSOC);
+
+            if ($enFlujo) {
+                require_once("models/Servicios.php");
+                $servicios = new Servicios();
+                return $servicios->manejar($mensaje, [
+                    'numero' => $numero,
+                    'consentido' => $enFlujo['consentido'],
+                    'paso' => $enFlujo['paso']
+                ]);
+            }
+
             file_put_contents("log.txt", "[DEBUG][Usuario.php] Mensaje no reconocido, devolviendo respuesta default\n", FILE_APPEND);
             return "No entendí tu mensaje. Escribe 'menu' para ver tus consentidos.";
 
