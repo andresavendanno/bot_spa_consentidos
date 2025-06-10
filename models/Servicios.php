@@ -49,16 +49,16 @@ class Servicios extends Conectar {
             ]);
 
             return "¿Deseas agregar algún servicio adicional para *$consentido*?
-1. Shampoo pulguicida
-2. Shampoo hipoalergénico
-3. Ninguno";
-        }
+        1. Shampoo pulguicida
+        2. Shampoo hipoalergénico
+        3. Ninguno";
+                }
 
-        return "Por favor selecciona un servicio válido para *$consentido*:
-1. Baño
-2. Baño y corte
-3. Baño y deslanado
-4. Baño y desenredado";
+            return "Por favor selecciona un servicio válido para *$consentido*:
+        1. Baño
+        2. Baño y corte
+        3. Baño y deslanado
+        4. Baño y desenredado";
     }
 
     private function serviciosAdicionales($mensaje, $usuario) {
@@ -87,10 +87,10 @@ class Servicios extends Conectar {
             return "✅ Servicio configurado. ¿Deseas confirmar el agendamiento para *$consentido*? (Sí / No)";
         }
 
-        return "Selecciona una opción válida:
-1. Shampoo pulguicida
-2. Shampoo hipoalergénico
-3. Ninguno";
+            return "Selecciona una opción válida:
+        1. Shampoo pulguicida
+        2. Shampoo hipoalergénico
+        3. Ninguno";
     }
 
     private function confirmarYGuardar($mensaje, $usuario) {
@@ -98,10 +98,10 @@ class Servicios extends Conectar {
 
         $conectar = parent::conexion();
 
-        $numero = $usuario['numero'];
-        $consentido = $usuario['consentido'];
-
         if (strtolower($mensaje) === 'sí' || strtolower($mensaje) === 'si') {
+            $conectar = parent::conexion();
+
+            // 1. Obtener los datos temporales de servicio
             $query = $conectar->prepare("SELECT * FROM servicio_temp WHERE numero = :numero");
             $query->execute([':numero' => $numero]);
             $temp = $query->fetch(PDO::FETCH_ASSOC);
@@ -111,27 +111,35 @@ class Servicios extends Conectar {
                 return "❌ No se encontró información temporal. Inicia nuevamente el proceso.";
             }
 
+            // 2. Obtener tutor y comentario desde usuarios_final
+            $stmt = $conectar->prepare("SELECT tutor, comentario FROM usuarios_final WHERE numero = :numero ORDER BY id DESC LIMIT 1");
+            $stmt->execute([':numero' => $numero]);
+            $datos = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            $tutor = $datos['tutor'] ?? '';
+            $comentario = $datos['comentario'] ?? '';
+
+            // 3. Guardar servicio confirmado
             $sql = "INSERT INTO usuarios_servicio (numero, consentido, servicio, adicionales, tutor, comentario)
                     VALUES (:numero, :consentido, :servicio, :adicionales, :tutor, :comentario)";
-
-            $stmt = $conectar->prepare($sql);
-            $stmt->execute([
+            $stmtInsert = $conectar->prepare($sql);
+            $stmtInsert->execute([
                 ':numero' => $temp['numero'],
                 ':consentido' => $temp['consentido'],
                 ':servicio' => $temp['tipo_servicio'],
                 ':adicionales' => $temp['servicio_adicional'],
-                ':tutor' => $usuario['tutor'] ?? '',
-                ':comentario' => ''
+                ':tutor' => $tutor,
+                ':comentario' => $comentario
             ]);
 
-            file_put_contents("log.txt", "[DEBUG][Servicios.php] Servicio guardado exitosamente para $numero\n", FILE_APPEND);
-
+            // 4. Limpiar temporal
             $delete = $conectar->prepare("DELETE FROM servicio_temp WHERE numero = :numero");
             $delete->execute([':numero' => $numero]);
 
+            file_put_contents("log.txt", "[DEBUG][Servicios.php] Servicio guardado exitosamente para $numero\n", FILE_APPEND);
+
             return "🎉 Tu servicio ha sido agendado exitosamente para *$consentido*. ¡Gracias!";
         }
-
         return "❗ Por favor responde 'Sí' si deseas confirmar el servicio, o reinicia el proceso.";
     }
 }
