@@ -1,6 +1,8 @@
 <?php
-require_once("config/constantes.php");
-require_once("helpers/mensajes.php");
+//require_once("config/constantes.php");
+//require_once("helpers/mensajes.php");
+require_once __DIR__ . '/../helpers/mensajes.php';
+require_once __DIR__ . '/../config/constantes.php';
 
 //file_put_contents("log.txt", "[" . date("Y-m-d H:i:s") . "] [Webhook] Método: " . $_SERVER['REQUEST_METHOD'] . PHP_EOL, FILE_APPEND); //entró a webhook
 

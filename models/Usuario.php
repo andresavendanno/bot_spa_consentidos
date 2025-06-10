@@ -1,6 +1,6 @@
 <?php
-require_once("config/conexion.php");
-require_once("models/Registro.php"); // Asegurate de incluir esto si vas a usar Registro
+require_once __DIR__ . '/../config/conexion.php';
+require_once __DIR__ . '/../models/Registro.php'; // Asegurate de incluir esto si vas a usar Registro
 
 class Usuario extends Conectar {
 
@@ -93,7 +93,14 @@ class Usuario extends Conectar {
                     $stmt2->execute();
 
                     // 3. No devolver mensaje aquí: lo maneja webhook.php → Servicios.php
-                    return null;
+                    require_once __DIR__ . '/../models/Servicios.php';
+                    $servicios = new Servicios();
+                    $respuesta = $servicios->manejar("inicio", [ // puedes enviar "" o algo que dispare el paso 9
+                        'numero' => $numero,
+                        'consentido' => $consentido,
+                        'paso' => 9
+                    ]);
+                    return $respuesta;
                 }
             }
 
