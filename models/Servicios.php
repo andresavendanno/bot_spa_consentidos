@@ -96,7 +96,7 @@ class Servicios extends Conectar {
     private function confirmarYGuardar($mensaje, $usuario) {
         file_put_contents("log.txt", "[DEBUG][Servicios.php] Paso 11: confirmación recibida: '$mensaje' para {$usuario['consentido']}\n", FILE_APPEND);
 
-        //$conectar = parent::conexion();
+        $conectar = parent::conexion();
 
         $numero = $usuario['numero'];
         $consentido = $usuario['consentido'];
