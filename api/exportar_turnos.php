@@ -2,7 +2,7 @@
 require_once 'config/conexion.php'; // Ruta a tu archivo de conexión
 
 // 🔐 Clave de seguridad
-$CLAVE_SEGURA = 'TUCLAVE123';
+$CLAVE_SEGURA = 'SpaConsentidos';
 if (!isset($_GET['clave']) || $_GET['clave'] !== $CLAVE_SEGURA) {
     http_response_code(403);
     echo json_encode(['error' => 'Acceso no autorizado']);
