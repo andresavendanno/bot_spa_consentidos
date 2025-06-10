@@ -98,8 +98,8 @@ class Servicios extends Conectar {
 
         //$conectar = parent::conexion();
 
-        //$numero = $usuario['numero'];
-        //$consentido = $usuario['consentido'];
+        $numero = $usuario['numero'];
+        $consentido = $usuario['consentido'];
         if (strtolower($mensaje) === 'sí' || strtolower($mensaje) === 'si') {
             $conectar = parent::conexion();
 
@@ -114,7 +114,7 @@ class Servicios extends Conectar {
             }
 
             // 2. Obtener tutor y comentario desde usuarios_final
-            $stmt = $conectar->prepare("SELECT tutor, comentario FROM usuarios_final WHERE numero = :numero AND consentido :consentido ORDER BY id DESC LIMIT 1");
+            $stmt = $conectar->prepare("SELECT tutor, comentario FROM usuarios_final WHERE numero = :numero AND consentido = :consentido ORDER BY id DESC LIMIT 1");
             $stmt->execute([
                 ':numero' => $numero,
                 ':consentido' => $consentido
