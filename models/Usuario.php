@@ -79,7 +79,7 @@ class Usuario extends Conectar {
                     $consentido = $consentidos[$index];
 
                     // 1. Guardar consentido en la tabla temporal
-                    require_once __DIR__ . '/../config/conexion.php';
+                    require_once("config/conexion.php");
                     global $mysqli;
 
                     $stmt = $mysqli->prepare("INSERT INTO servicio_temp (numero, consentido, paso) VALUES (?, ?, 9)
@@ -93,7 +93,7 @@ class Usuario extends Conectar {
                     $stmt2->execute();
 
                     // 3. No devolver mensaje aquí: lo maneja webhook.php → Servicios.php
-                    require_once __DIR__ . '/../models/Servicios.php';
+                    require_once("models/Servicios.php");
                     $servicios = new Servicios();
                     $respuesta = $servicios->manejar("inicio", [ // puedes enviar "" o algo que dispare el paso 9
                         'numero' => $numero,
