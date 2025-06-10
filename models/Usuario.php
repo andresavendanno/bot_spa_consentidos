@@ -2,6 +2,7 @@
 require_once("config/conexion.php");
 require_once("models/Registro.php"); // Asegurate de incluir esto si vas a usar Registro
 
+
 class Usuario extends Conectar {
 
     public function procesarPaso($numero, $mensaje, $tipoMensaje = "text") {
@@ -79,7 +80,7 @@ class Usuario extends Conectar {
                     $consentido = $consentidos[$index];
 
                     // 1. Guardar consentido en la tabla temporal
-                    require_once("config/conexion.php");
+                    
                     global $mysqli;
 
                     $stmt = $mysqli->prepare("INSERT INTO servicio_temp (numero, consentido, paso) VALUES (?, ?, 9)

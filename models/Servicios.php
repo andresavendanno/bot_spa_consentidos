@@ -5,6 +5,9 @@ require_once("config/conexion.php");
 class Servicios {
 
     public function manejar($mensaje, $usuario) {
+
+        file_put_contents("log.txt", "[DEBUG][Servicios.php] Entró a manejar con paso: {$usuario['paso']}, mensaje: '{$mensaje}'\n", FILE_APPEND); //entro en manejar
+
         $paso = $usuario['paso'];
         $consentido = $usuario['consentido'];
 
@@ -57,6 +60,9 @@ class Servicios {
     }
 
     private function serviciosAdicionales($mensaje, $usuario) {
+        file_put_contents("log.txt", "[DEBUG][Servicios.php] Paso 10: servicio adicional recibido: '$mensaje' para {$usuario['consentido']}\n", FILE_APPEND);
+
+
         global $mysqli;
 
         $numero = $usuario['numero'];
@@ -84,6 +90,8 @@ class Servicios {
     }
 
     private function confirmarYGuardar($mensaje, $usuario) {
+        file_put_contents("log.txt", "[DEBUG][Servicios.php] Paso 11: confirmación recibida: '$mensaje' para {$usuario['consentido']}\n", FILE_APPEND);
+
         global $mysqli;
 
         $numero = $usuario['numero'];
@@ -97,6 +105,8 @@ class Servicios {
             $temp = $resultado->fetch_assoc();
 
             if (!$temp) {
+                file_put_contents("log.txt", "[ERROR][Servicios.php] No se encontró registro en servicio_temp para $numero\n", FILE_APPEND);
+
                 return "❌ No se encontró información temporal. Inicia nuevamente el proceso.";
             }
 
@@ -105,6 +115,8 @@ class Servicios {
             $comentario = '';
             $insert->bind_param("ssssss", $temp['numero'], $temp['consentido'], $temp['tipo_servicio'], $temp['servicio_adicional'], $tutor, $comentario);
             $insert->execute();
+            
+            file_put_contents("log.txt", "[DEBUG][Servicios.php] Servicio guardado exitosamente para $numero\n", FILE_APPEND);
 
             $delete = $mysqli->prepare("DELETE FROM servicio_temp WHERE numero = ?");
             $delete->bind_param("s", $numero);
