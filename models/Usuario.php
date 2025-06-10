@@ -1,6 +1,6 @@
 <?php
-require_once __DIR__ . '/../config/conexion.php';
-require_once __DIR__ . '/../models/Registro.php'; // Asegurate de incluir esto si vas a usar Registro
+require_once("config/conexion.php");
+require_once("models/Registro.php"); // Asegurate de incluir esto si vas a usar Registro
 
 class Usuario extends Conectar {
 
