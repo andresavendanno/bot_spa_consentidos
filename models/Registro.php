@@ -97,9 +97,11 @@ class Registro extends Conectar {
                     return "Si deseas continuar sin foto, responde con *Sin foto*. O bien, envía una imagen.";
 
                 case 8:
+                    $consentido = $usuario['consentido']; 
                     $this->actualizarPaso($numero, 'tutor', $mensaje, 9);
                     $this->moverAFinal($numero);
                     
+
                 // 1. Guardar consentido en la tabla temporal
                     
                     $sql1 = "INSERT INTO servicio_temp (numero, consentido, paso)
