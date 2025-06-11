@@ -18,20 +18,17 @@ try {
     // 🛠️ Consulta filtrando por mes actual
     $stmt = $pdo->prepare("
         SELECT 
-            id,raza,tamaño,sercivio,forma_pago,precio
+            id,raza,tamaño,servicio,forma_pago,precio
         FROM precios
         ORDER BY tamaño
     ");
 
-    $stmt->execute([
-        ':inicio' => $inicioMes,
-        ':fin' => $finMes
-    ]);
+    $stmt->execute();
 
-    $turnos = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $precios = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     header('Content-Type: application/json; charset=utf-8');
-    echo json_encode($turnos, JSON_UNESCAPED_UNICODE);
+    echo json_encode($precios, JSON_UNESCAPED_UNICODE);
 
 } catch (PDOException $e) {
     http_response_code(500);
