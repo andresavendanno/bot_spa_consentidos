@@ -20,7 +20,7 @@ try {
         SELECT 
             id,raza,tamaño,servicio,forma_pago,precio
         FROM precios
-        ORDER BY tamaño
+        ORDER BY id
     ");
 
     $stmt->execute();

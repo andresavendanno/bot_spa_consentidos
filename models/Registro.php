@@ -1,5 +1,6 @@
 <?php
 require_once("config/conexion.php");
+require_once("helpers/funciones.php");
 
 class Registro extends Conectar {
 
@@ -192,8 +193,13 @@ class Registro extends Conectar {
         try {
             $conectar = parent::conexion();
             $conectar->prepare("
-                INSERT INTO usuarios_final (numero, consentido, raza, peso, ultimo_bano, edad, comentario, tutor, fecha_creacion)
-                SELECT numero, consentido, raza, peso, ultimo_bano, edad, comentario, tutor, fecha_creacion
+                INSERT INTO usuarios_final (numero, consentido, raza, peso, size, ultimo_bano, edad, comentario, tutor, fecha_creacion)
+                SELECT numero, consentido, raza, peso, 
+                CASE
+                    WHEN peso <= 5 THEN 'pequeño'
+                    WHEN peso > 5 AND peso < 20 THEN 'mediano'
+                    ELSE 'grande'
+                END as size, ultimo_bano, edad, comentario, tutor, fecha_creacion
                 FROM usuarios_temp WHERE numero = ?
             ")->execute([$numero]);
 
