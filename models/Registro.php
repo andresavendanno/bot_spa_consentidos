@@ -198,7 +198,8 @@ class Registro extends Conectar {
                 CASE
                     WHEN peso <= 5 THEN 'pequeño'
                     WHEN peso > 5 AND peso < 20 THEN 'mediano'
-                    ELSE 'grande'
+                    WHEN peso >20  AND peso < 30 THEN 'grande'
+                    ELSE 'especial'
                 END as size, ultimo_bano, edad, comentario, tutor, fecha_creacion
                 FROM usuarios_temp WHERE numero = ?
             ")->execute([$numero]);
