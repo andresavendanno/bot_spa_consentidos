@@ -14,18 +14,13 @@ if (!isset($_GET['clave']) || $_GET['clave'] !== $CLAVE_SEGURA) {
 }
 
 try {
-    // 📅 Obtener primer y último día del mes actual
-    $inicioMes = date('Y-m-01'); // 1° del mes
-    $finMes    = date('Y-m-t');  // Último día del mes
-
+    
     // 🛠️ Consulta filtrando por mes actual
     $stmt = $pdo->prepare("
         SELECT 
-            id,fecha, hora, consentido, tamanio, servicio, 
-            precio, forma_pago, pago_cliente, cliente, telefono, notas, peluquero
-        FROM turnos
-        WHERE fecha BETWEEN :inicio AND :fin
-        ORDER BY fecha, hora, peluquero
+            id,raza,tamaño,sercivio,forma_pago,precio
+        FROM precios
+        ORDER BY tamaño
     ");
 
     $stmt->execute([
