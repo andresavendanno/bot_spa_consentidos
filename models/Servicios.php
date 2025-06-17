@@ -1,6 +1,8 @@
 <?php
 
 require_once("config/conexion.php");
+require_once("models/Agenda.php");
+
 
 class Servicios extends Conectar {
 
