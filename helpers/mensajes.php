@@ -84,9 +84,23 @@ function recibirMensajes($req) {
             $stmt->execute([$numero]);
             $usuarioTemp = $stmt->fetch(PDO::FETCH_ASSOC);
 
-            $paso = (int)($usuarioTemp['paso'] ?? 1);
-            $usuarioTemp['numero'] = $numero; // por si no viene
-            file_put_contents("log.txt", "[MENSAJES][DEBUG] Prelogica de pasos $paso \n", FILE_APPEND);
+            if (!$usuarioTemp) {
+                if (!$esRegistrado) {
+                    // Solo si NO está registrado, insertamos paso 1
+                    $stmt = $conexion->prepare("INSERT INTO usuarios_temp (numero, paso) VALUES (?, 1)");
+                    $stmt->execute([$numero]);
+                    $paso = 1;
+                } else {
+                    // Ya está registrado pero no tiene entrada en temp
+                    $paso = 0;
+                }
+                $usuarioTemp = ['numero' => $numero, 'paso' => $paso];
+            } else {
+                $paso = (int)($usuarioTemp['paso'] ?? 1);
+                $usuarioTemp['numero'] = $numero;
+            }
+
+            file_put_contents("log.txt", "[MENSAJES][DEBUG] Paso detectado: $paso\n", FILE_APPEND);
             if ($paso >= 0 && $paso <= 4) {
                 file_put_contents("log.txt", "[MENSAJES][DEBUG] Paso $paso: Registro.php\n", FILE_APPEND);
                 $registro = new Registro();
