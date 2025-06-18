@@ -81,6 +81,37 @@ class Servicios extends Conectar {
                 ':adicional' => $adicional,
                 ':numero' => $numero
             ]);
+            
+            // Obtener datos completos desde servicio_temp
+            $stmtTemp = $conectar->prepare("SELECT * FROM servicio_temp WHERE numero = :numero");
+            $stmtTemp->execute([':numero' => $numero]);
+            $temp = $stmtTemp->fetch(PDO::FETCH_ASSOC);
+
+            if ($temp) {
+                // Obtener datos del tutor y comentario desde usuarios_final
+                $stmtExtra = $conectar->prepare("SELECT tutor, comentario FROM usuarios_final WHERE numero = :numero AND consentido = :consentido ORDER BY id DESC LIMIT 1");
+                $stmtExtra->execute([
+                    ':numero' => $numero,
+                    ':consentido' => $consentido
+                ]);
+                $extra = $stmtExtra->fetch(PDO::FETCH_ASSOC);
+
+                $sqlInsert = "INSERT INTO usuarios_servicio (numero, consentido, servicio, adicionales, tutor, comentario)
+                            VALUES (:numero, :consentido, :servicio, :adicionales, :tutor, :comentario)";
+                $stmtInsert = $conectar->prepare($sqlInsert);
+                $stmtInsert->execute([
+                    ':numero' => $numero,
+                    ':consentido' => $consentido,
+                    ':servicio' => $temp['tipo_servicio'],
+                    ':adicionales' => $temp['servicio_adicional'],
+                    ':tutor' => $extra['tutor'] ?? '',
+                    ':comentario' => $extra['comentario'] ?? ''
+                ]);
+
+                // Limpiar servicio_temp
+                $delete = $conectar->prepare("DELETE FROM servicio_temp WHERE numero = :numero");
+                $delete->execute([':numero' => $numero]);
+            }
 
             return proponerTurnos($numero, $consentido);
         }
