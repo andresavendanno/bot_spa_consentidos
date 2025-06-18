@@ -35,7 +35,11 @@ class Usuario extends Conectar {
             // 🔹 Si el mensaje es "hola" o "menu", mostrar botones
             if ($mensaje === "hola" || $mensaje === "menu") {
                 file_put_contents("log.txt", "[DEBUG][Usuario.php] Entró al if de 'hola' o 'menu'\n", FILE_APPEND);
-               
+              
+                $conectar->prepare("DELETE FROM usuarios_temp WHERE numero = ?")->execute([$numero]);
+                $conectar->prepare("DELETE FROM servicio_temp WHERE numero = ?")->execute([$numero]);
+                $conectar->prepare("DELETE FROM agenda_temp WHERE numero = ?")->execute([$numero]);
+                
                 $deleteTemp = $conectar->prepare("DELETE FROM servicio_temp WHERE numero = ?");
                 $deleteTemp->execute([$numero]);
 
