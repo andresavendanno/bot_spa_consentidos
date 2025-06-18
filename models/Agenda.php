@@ -95,14 +95,14 @@ function proponerTurnos($numero, $consentido) {
 
     $mensaje .= "\nResponde con el número de opción para reservar, o escribe 'Cancelar' si querés dejarlo pendiente.";
 
-    $stmtTemp = $pdo->prepare("INSERT INTO agenda_temp (numero, consentido, turnos_json)
-        VALUES (:numero, :consentido, :json)
-        ON DUPLICATE KEY UPDATE turnos_json = VALUES(turnos_json), opcion_seleccionada = NULL");
+    $stmtTemp = $pdo->prepare("INSERT INTO agenda_temp (numero, consentido, turnos_json, paso)
+        VALUES (:numero, :consentido, :json, 11)
+        ON DUPLICATE KEY UPDATE turnos_json = VALUES(turnos_json), paso = 11, opcion_seleccionada = NULL");
     $stmtTemp->execute([
         ':numero' => $numero,
         ':consentido' => $consentido,
         ':json' => json_encode($turnos)
-    ]);
+    ]); 
 
     $pdo->prepare("UPDATE usuarios_temp SET paso = 11 WHERE numero = :numero")
         ->execute([':numero' => $numero]);

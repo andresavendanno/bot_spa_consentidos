@@ -68,7 +68,20 @@ function recibirMensajes($req) {
         $esRegistrado = $stmt->fetchColumn() > 0;
 
         //file_put_contents("log.txt", "[MENSAJES][DEBUG] Usuario registrado? " . ($esRegistrado ? "Sí" : "No") . "\n", FILE_APPEND);
+        // 11
+        // Chequear si hay paso 11 en agenda_temp
+        $stmt = $conexion->prepare("SELECT paso, consentido FROM agenda_temp WHERE numero = ?");
+        $stmt->execute([$numero]);
+        $agendaTemp = $stmt->fetch(PDO::FETCH_ASSOC);
 
+        if ($agendaTemp && (int)$agendaTemp['paso'] === 11) {
+            require_once("models/Agenda.php");
+            $respuesta = guardarTurnoSeleccionado($numero, $agendaTemp['consentido'], $comentario);
+            EnviarMensajeWhatsApp($respuesta, $numero);
+            return;
+        }
+        
+        // Está registrado?
         if ($esRegistrado) {
           //  file_put_contents("log.txt", "[MENSAJES][DEBUG] Usuario registrado. Revisando si está en flujo...\n", FILE_APPEND);
 
