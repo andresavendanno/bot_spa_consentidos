@@ -138,6 +138,9 @@ class Servicios extends Conectar {
                 ':tutor' => $tutor,
                 ':comentario' => $comentario
             ]);
+            // LLama Agenda
+            //require_once("models/Agenda.php");
+            $mensaje = proponerTurnos($numero, $consentido);
 
             // 4. Limpiar temporal
             $delete = $conectar->prepare("DELETE FROM servicio_temp WHERE numero = :numero");
@@ -145,7 +148,8 @@ class Servicios extends Conectar {
 
             file_put_contents("log.txt", "[DEBUG][Servicios.php] Servicio guardado exitosamente para $numero\n", FILE_APPEND);
 
-            return "🎉 Tu servicio ha sido agendado exitosamente para *$consentido*. ¡Gracias!";
+            return $mensaje;
+;
         }
         return "❗ Por favor responde 'Sí' si deseas confirmar el servicio, o reinicia el proceso.";
     }
