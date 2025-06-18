@@ -108,7 +108,7 @@ function recibirMensajes($req) {
                 $respuesta = "❓ No se pudo determinar en qué parte del proceso estás. Escribí 'hola' para comenzar.";
             }
 
-         catch (Throwable $e) {
+         }catch (Throwable $e) {
             file_put_contents("logs/error.log", "[ERROR][Usuario/Servicios] " . $e->getMessage() . " en línea " . $e->getLine() . PHP_EOL, FILE_APPEND);
         }
     } else {
