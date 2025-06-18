@@ -18,7 +18,7 @@ try {
     // 🛠️ Consulta filtrando por mes actual
     $stmt = $pdo->prepare("
         SELECT 
-            id,raza,tamaño,servicio,forma_pago,precio
+            id,raza,size,servicio,forma_pago,precio
         FROM precios
         ORDER BY id
     ");

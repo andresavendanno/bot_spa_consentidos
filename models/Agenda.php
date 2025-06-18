@@ -21,16 +21,16 @@ function obtenerTurnosDisponibles($numero, $consentido, $limite = 2) {
         $servicio = $stmtServicio->fetchColumn();
 
         // Obtener tamaño desde usuarios_final
-        $stmtTamanio = $pdo->prepare("SELECT tamanio FROM usuarios_final WHERE numero = :numero AND consentido = :consentido ORDER BY id DESC LIMIT 1");
-        $stmtTamanio->execute([
+        $stmtsize = $pdo->prepare("SELECT size FROM usuarios_final WHERE numero = :numero AND consentido = :consentido ORDER BY id DESC LIMIT 1");
+        $stmtsize->execute([
             ':numero' => $numero,
             ':consentido' => $consentido
         ]);
-        $tamanio = $stmtTamanio->fetchColumn();
+        $size = $stmtsize->fetchColumn();
 
         // Obtener precio estimado (en efectivo)
-        $stmtPrecio = $pdo->prepare("SELECT precio FROM precios WHERE servicio = :servicio AND tamanio = :tamanio AND forma_pago = 'efectivo' LIMIT 1");
-        $stmtPrecio->execute([':servicio' => $servicio, ':tamanio' => $tamanio]);
+        $stmtPrecio = $pdo->prepare("SELECT precio FROM precios WHERE servicio = :servicio AND size = :size AND forma_pago = 'efectivo' LIMIT 1");
+        $stmtPrecio->execute([':servicio' => $servicio, ':size' => $size]);
         $precio = $stmtPrecio->fetchColumn();
 
         for ($i = 0; $i < 7 && count($turnos) < $limite; $i++) {
@@ -65,7 +65,7 @@ function obtenerTurnosDisponibles($numero, $consentido, $limite = 2) {
                             'peluquero' => $horario['peluquero'],
                             'precio' => $precio,
                             'servicio' => $servicio,
-                            'tamanio' => $tamanio
+                            'size' => $size
                         ];
                     }
 

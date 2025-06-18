@@ -21,7 +21,7 @@ try {
     // 🛠️ Consulta filtrando por mes actual
     $stmt = $pdo->prepare("
         SELECT 
-            id,fecha, hora, consentido, tamanio, servicio, 
+            id,fecha, hora, consentido, size, servicio, 
             precio, forma_pago, pago_cliente, cliente, telefono, notas, peluquero
         FROM turnos
         WHERE fecha BETWEEN :inicio AND :fin
