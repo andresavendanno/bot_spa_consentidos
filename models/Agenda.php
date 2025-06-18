@@ -92,6 +92,11 @@ function obtenerTurnosDisponibles($numero, $consentido, $limite = 2) {
 
 function proponerTurnos($numero, $consentido) {
     $turnos = obtenerTurnosDisponibles($numero, $consentido);
+    $mapaDias = [
+        'Monday' => 'Lunes', 'Tuesday' => 'Martes', 'Wednesday' => 'Miércoles',
+        'Thursday' => 'Jueves', 'Friday' => 'Viernes', 'Saturday' => 'Sábado', 'Sunday' => 'Domingo'
+    ];
+    $diaNombre = $mapaDias[$fecha->format('l')];
 
     if (isset($turnos['error'])) {
         return "❌ Error al obtener turnos: " . $turnos['error'];
@@ -101,7 +106,10 @@ function proponerTurnos($numero, $consentido) {
         $mensaje = "🎉 Tu servicio fue registrado para *$consentido*\n";
         $mensaje .= "📅 Aquí hay opciones de agenda disponibles:\n";
         foreach ($turnos as $i => $turno) {
-            $mensaje .= ($i + 1) . ". " . $turno['fecha'] . " a las " . $turno['hora'] ."\n";
+            $fecha = DateTime::createFromFormat('Y-m-d', $turno['fecha']);
+            $diaNombre = ucfirst(strftime('%A', $fecha->getTimestamp())); // nombre del día en español
+            $diaNumero = $fecha->format('d');
+            $mensaje .= ($i + 1) . ". $diaNombre $diaNumero a las " . $turno['hora'] . "\n";
         }
         $mensaje .= "\nResponde con el número de opción para reservar, o escribe 'Cancelar' si querés dejarlo pendiente.";
     } else {
