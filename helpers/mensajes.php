@@ -86,18 +86,28 @@ function recibirMensajes($req) {
             $paso = (int)($usuarioTemp['paso'] ?? 1);
             $usuarioTemp['numero'] = $numero; // por si no viene
 
-            if ($paso >= 9 && $paso <= 11) {
-                file_put_contents("log.txt", "[MENSAJES][DEBUG] Procesando paso con Servicios.php\n", FILE_APPEND);
+            if ($paso >= 0 && $paso <= 4) {
+                file_put_contents("log.txt", "[MENSAJES][DEBUG] Paso $paso: Registro.php\n", FILE_APPEND);
+                $registro = new Registro();
+                $respuesta = $registro->procesarPaso($numero, $comentario, $tipoMensaje);
+            } elseif ($paso >= 5 && $paso <= 8) {
+                file_put_contents("log.txt", "[MENSAJES][DEBUG] Paso $paso: Usuario.php\n", FILE_APPEND);
+                $usuario = new Usuario();
+                $respuesta = $usuario->procesarPaso($numero, $comentario, $tipoMensaje);
+            } elseif ($paso >= 9 && $paso <= 10) {
+                file_put_contents("log.txt", "[MENSAJES][DEBUG] Paso $paso: Servicios.php\n", FILE_APPEND);
                 require_once("models/Servicios.php");
                 $servicios = new Servicios();
                 $respuesta = $servicios->manejar($comentario, $usuarioTemp);
+            } elseif ($paso >= 11) {
+                file_put_contents("log.txt", "[MENSAJES][DEBUG] Paso $paso: Agenda.php\n", FILE_APPEND);
+                require_once("models/Agenda.php");
+                $respuesta = guardarTurnoSeleccionado($numero, $usuarioTemp['consentido'], $comentario);
             } else {
-                file_put_contents("log.txt", "[MENSAJES][DEBUG] Procesando paso con Usuario.php\n", FILE_APPEND);
-                $usuario = new Usuario();
-                $respuesta = $usuario->procesarPaso($numero, $comentario, $tipoMensaje);
+                $respuesta = "❓ No se pudo determinar en qué parte del proceso estás. Escribí 'hola' para comenzar.";
             }
 
-        } catch (Throwable $e) {
+         catch (Throwable $e) {
             file_put_contents("logs/error.log", "[ERROR][Usuario/Servicios] " . $e->getMessage() . " en línea " . $e->getLine() . PHP_EOL, FILE_APPEND);
         }
     } else {
