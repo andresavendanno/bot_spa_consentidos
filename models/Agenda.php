@@ -114,21 +114,20 @@ function proponerTurnos($numero, $consentido) {
     }
 
     if (count($turnos)) {
-        $mensaje = "🎉 Tu servicio fue registrado para *$consentido*\n";
-        $mensaje .= "📅 Aquí hay opciones de agenda disponibles:\n";
-        foreach ($turnos as $i => $turno) {
-            $fecha = DateTime::createFromFormat('Y-m-d', $turno['fecha']);
-            $diaNombre = ucfirst(strftime('%A', $fecha->getTimestamp())); // nombre del día en español
-            $diaNumero = $fecha->format('d');
-            $mensaje .= ($i + 1) . ". $diaNombre $diaNumero a las " . $turno['hora'] . "\n";
-        }
-        $mensaje .= "\nResponde con el número de opción para reservar, o escribe 'Cancelar' si querés dejarlo pendiente.";
-    } else {
-        $mensaje = "🎉 Tu servicio fue registrado para *$consentido*, pero no hay turnos disponibles esta semana. Te contactaremos pronto.";
+    $mensaje = "🎉 Tu servicio fue registrado para *$consentido*\n";
+    $mensaje .= "📅 Aquí hay opciones de agenda disponibles:\n";
+    foreach ($turnos as $i => $turno) {
+        $fecha = DateTime::createFromFormat('Y-m-d', $turno['fecha']);
+        $diaNombre = ucfirst(strftime('%A', $fecha->getTimestamp()));
+        $diaNumero = $fecha->format('d');
+        $mensaje .= ($i + 1) . ". $diaNombre $diaNumero a las " . $turno['hora'] . "\n";
     }
-    file_put_contents("log.txt", "[AGENDA] Mensaje generado:\n$mensaje\n", FILE_APPEND);
-    $turnos = obtenerTurnosDisponibles($numero, $consentido);
-    file_put_contents("log.txt", "[AGENDA] Turnos crudos:\n" . print_r($turnos, true), FILE_APPEND);
+    $mensaje .= "\nResponde con el número de opción para reservar, o escribe 'Cancelar' si querés dejarlo pendiente.";
+} else {
+    $mensaje = "🎉 Tu servicio fue registrado para *$consentido*, pero no hay turnos disponibles esta semana. Te contactaremos pronto.";
+}
 
-    return $mensaje;
+file_put_contents("log.txt", "[AGENDA] Mensaje generado:\n$mensaje\n", FILE_APPEND);
+return $mensaje;
+
 }
