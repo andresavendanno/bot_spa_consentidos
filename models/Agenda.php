@@ -8,6 +8,15 @@ function obtenerTurnosDisponibles($numero, $consentido, $limite = 2) {
 
     $turnos = [];
     $diasSemana = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"];
+    $mapaDias = [
+        'Monday'    => 'Lunes',
+        'Tuesday'   => 'Martes',
+        'Wednesday' => 'Miércoles',
+        'Thursday'  => 'Jueves',
+        'Friday'    => 'Viernes',
+        'Saturday'  => 'Sábado',
+        'Sunday'    => 'Domingo'
+    ];
 
     $hoy = new DateTime();
 
@@ -36,7 +45,7 @@ function obtenerTurnosDisponibles($numero, $consentido, $limite = 2) {
         for ($i = 0; $i < 7 && count($turnos) < $limite; $i++) {
             $fecha = clone $hoy;
             $fecha->modify("+{$i} day");
-            $dia = ucfirst($fecha->format('l'));
+            $dia = $mapaDias[$fecha->format('l')];
             $fechaSQL = $fecha->format('Y-m-d');
 
             $stmtHorario = $pdo->prepare("SELECT * FROM horarios_peluqueros WHERE dia = :dia");
