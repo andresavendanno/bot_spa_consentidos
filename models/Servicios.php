@@ -3,11 +3,11 @@
 require_once("config/conexion.php");
 require_once("models/Agenda.php");
 
-
 class Servicios extends Conectar {
 
     public function manejar($mensaje, $usuario) {
         file_put_contents("log.txt", "[DEBUG][Servicios.php] Entró a manejar con paso: {$usuario['paso']}, mensaje: '{$mensaje}'\n", FILE_APPEND);
+
         $reinicios = ['hola', 'buenas', 'hey', 'empezar', 'inicio'];
         if (in_array(strtolower(trim($mensaje)), $reinicios)) {
             $conectar = parent::conexion();
@@ -26,9 +26,6 @@ class Servicios extends Conectar {
 
             case 10:
                 return $this->serviciosAdicionales($mensaje, $usuario);
-
-            case 11:
-                return $this->confirmarYGuardar($mensaje, $usuario);
 
             default:
                 return "🐾 Bienvenido al sistema de agendamiento. Por favor selecciona un consentido para comenzar.";
@@ -62,9 +59,9 @@ class Servicios extends Conectar {
         1. Shampoo pulguicida
         2. Shampoo hipoalergénico
         3. Ninguno";
-                }
+        }
 
-            return "Por favor selecciona un servicio válido para *$consentido*:
+        return "Por favor selecciona un servicio válido para *$consentido*:
         1. Baño
         2. Baño y corte
         3. Baño y deslanado
@@ -97,68 +94,9 @@ class Servicios extends Conectar {
             return proponerTurnos($numero, $consentido);
         }
 
-            return "Selecciona una opción válida:
+        return "Selecciona una opción válida:
         1. Shampoo pulguicida
         2. Shampoo hipoalergénico
         3. Ninguno";
-    }
-
-    private function confirmarYGuardar($mensaje, $usuario) {
-        file_put_contents("log.txt", "[DEBUG][Servicios.php] Paso 11: confirmación recibida: '$mensaje' para {$usuario['consentido']}\n", FILE_APPEND);
-
-        $conectar = parent::conexion();
-
-        $numero = $usuario['numero'];
-        $consentido = $usuario['consentido'];
-        if (strtolower($mensaje) === 'sí' || strtolower($mensaje) === 'si') {
-            $conectar = parent::conexion();
-
-            // 1. Obtener los datos temporales de servicio
-            $query = $conectar->prepare("SELECT * FROM servicio_temp WHERE numero = :numero");
-            $query->execute([':numero' => $numero]);
-            $temp = $query->fetch(PDO::FETCH_ASSOC);
-
-            if (!$temp) {
-                file_put_contents("log.txt", "[ERROR][Servicios.php] No se encontró registro en servicio_temp para $numero\n", FILE_APPEND);
-                return "❌ No se encontró información temporal. Inicia nuevamente el proceso.";
-            }
-
-            // 2. Obtener tutor y comentario desde usuarios_final
-            $stmt = $conectar->prepare("SELECT tutor, comentario FROM usuarios_final WHERE numero = :numero AND consentido = :consentido ORDER BY id DESC LIMIT 1");
-            $stmt->execute([
-                ':numero' => $numero,
-                ':consentido' => $consentido
-            ]);
-            $datos = $stmt->fetch(PDO::FETCH_ASSOC);
-
-            $tutor = $datos['tutor'] ?? '';
-            $comentario = $datos['comentario'] ?? '';
-
-            // 3. Guardar servicio confirmado
-            $sql = "INSERT INTO usuarios_servicio (numero, consentido, servicio, adicionales, tutor, comentario)
-                    VALUES (:numero, :consentido, :servicio, :adicionales, :tutor, :comentario)";
-            $stmtInsert = $conectar->prepare($sql);
-            $stmtInsert->execute([
-                ':numero' => $temp['numero'],
-                ':consentido' => $temp['consentido'],
-                ':servicio' => $temp['tipo_servicio'],
-                ':adicionales' => $temp['servicio_adicional'],
-                ':tutor' => $tutor,
-                ':comentario' => $comentario
-            ]);
-            // LLama Agenda
-            //require_once("models/Agenda.php");
-            $mensaje = proponerTurnos($numero, $consentido);
-
-            // 4. Limpiar temporal
-            $delete = $conectar->prepare("DELETE FROM servicio_temp WHERE numero = :numero");
-            $delete->execute([':numero' => $numero]);
-
-            file_put_contents("log.txt", "[DEBUG][Servicios.php] Servicio guardado exitosamente para $numero\n", FILE_APPEND);
-
-            return $mensaje;
-;
-        }
-        return "❗ Por favor responde 'Sí' si deseas confirmar el servicio, o reinicia el proceso.";
     }
 }
