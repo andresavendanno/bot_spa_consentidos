@@ -2,10 +2,11 @@
 require_once("models/Registro.php");
 require_once("models/Usuario.php");
 require_once("helpers/funciones.php");
+file_put_contents("log.txt", "[MENSAJES] Iniciando recepción de mensaje\n", FILE_APPEND);
 
 function recibirMensajes($req) {
     try {
-        //file_put_contents("log.txt", "[MENSAJES][".date("Y-m-d H:i:s")."] Payload recibido: ".json_encode($req).PHP_EOL, FILE_APPEND); // entro a flujo mensajes
+        file_put_contents("log.txt", "[MENSAJES][".date("Y-m-d H:i:s")."] Payload recibido: ".json_encode($req).PHP_EOL, FILE_APPEND); // entro a flujo mensajes
 
         if (!isset($req['entry'][0]['changes'][0]['value']['messages'])) {
             file_put_contents("log.txt", "[MENSAJES][DEBUG] No hay mensajes en payload.\n", FILE_APPEND);
@@ -27,7 +28,7 @@ function recibirMensajes($req) {
             return;
         }
         marcarMensajeComoProcesado($idMensaje);
-        //file_put_contents("log.txt", "[MENSAJES][DEBUG] Marcado OK\n", FILE_APPEND);
+        file_put_contents("log.txt", "[MENSAJES][DEBUG] Marcado OK\n", FILE_APPEND);
         limpiarMensajesProcesados();
 
         // Detectar correctamente el contenido del mensaje según tipo
@@ -85,7 +86,7 @@ function recibirMensajes($req) {
 
             $paso = (int)($usuarioTemp['paso'] ?? 1);
             $usuarioTemp['numero'] = $numero; // por si no viene
-
+            file_put_contents("log.txt", "[MENSAJES][DEBUG] Prelogica de pasos $paso \n", FILE_APPEND);
             if ($paso >= 0 && $paso <= 4) {
                 file_put_contents("log.txt", "[MENSAJES][DEBUG] Paso $paso: Registro.php\n", FILE_APPEND);
                 $registro = new Registro();
