@@ -35,6 +35,9 @@ class Usuario extends Conectar {
             // 🔹 Si el mensaje es "hola" o "menu", mostrar botones
             if ($mensaje === "hola" || $mensaje === "menu") {
                 file_put_contents("log.txt", "[DEBUG][Usuario.php] Entró al if de 'hola' o 'menu'\n", FILE_APPEND);
+               
+                $deleteTemp = $conectar->prepare("DELETE FROM servicio_temp WHERE numero = ?");
+                $deleteTemp->execute([$numero]);
 
                 $botones = [];
                 foreach ($consentidos as $i => $c) {
