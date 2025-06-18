@@ -11,7 +11,7 @@ class Usuario extends Conectar {
             $conectar = parent::conexion();
             parent::set_names();
 
-            file_put_contents("log.txt", "[DEBUG][Usuario.php] Conectado a BD\n", FILE_APPEND);
+            //file_put_contents("log.txt", "[DEBUG][Usuario.php] Conectado a BD\n", FILE_APPEND);
 
             // 🔄 Si está en medio de un registro, redirigir a Registro.php
             $stmt = $conectar->prepare("SELECT * FROM usuarios_temp WHERE numero = ?");
@@ -30,7 +30,7 @@ class Usuario extends Conectar {
             $consentidos = $stmt->fetchAll(PDO::FETCH_COLUMN);
 
             $mensaje = trim(strtolower($mensaje));
-            file_put_contents("log.txt", "[DEBUG][Usuario.php] Mensaje normalizado: '$mensaje'\n", FILE_APPEND);
+            //file_put_contents("log.txt", "[DEBUG][Usuario.php] Mensaje normalizado: '$mensaje'\n", FILE_APPEND);
 
             // 🔹 Si el mensaje es "hola" o "menu", mostrar botones
             if ($mensaje === "hola" || $mensaje === "menu") {

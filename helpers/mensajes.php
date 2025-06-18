@@ -6,7 +6,6 @@ file_put_contents("log.txt", "[MENSAJES] Iniciando recepción de mensaje\n", FIL
 
 function recibirMensajes($req) {
     try {
-        file_put_contents("log.txt", "[MENSAJES][".date("Y-m-d H:i:s"."]. Payload recibido: ".json_encode($req).PHP_EOL, FILE_APPEND);
 
         if (!isset($req['entry'][0]['changes'][0]['value']['messages'])) {
             file_put_contents("log.txt", "[MENSAJES][DEBUG] No hay mensajes en payload.\n", FILE_APPEND);
@@ -20,7 +19,7 @@ function recibirMensajes($req) {
         $numero = $mensajeRaw['from'] ?? '';
 
         if (mensajeYaProcesado($idMensaje)) {
-            file_put_contents("log.txt", "[MENSAJES][".date("Y-m-d H:i:s"."] Duplicado ignorado: $idMensaje\n", FILE_APPEND);
+            file_put_contents("log.txt", "[MENSAJES][".date("Y-m-d H:i:s"."] Duplicado ignorado: $idMensaje\n", FILE_APPEND));
             return;
         }
         if ($timestamp < time() - 300) {
@@ -28,7 +27,7 @@ function recibirMensajes($req) {
             return;
         }
         marcarMensajeComoProcesado($idMensaje);
-        file_put_contents("log.txt", "[MENSAJES][DEBUG] Marcado OK\n", FILE_APPEND);
+        //file_put_contents("log.txt", "[MENSAJES][DEBUG] Marcado OK\n", FILE_APPEND);
         limpiarMensajesProcesados();
 
         switch ($tipoMensaje) {
@@ -51,27 +50,27 @@ function recibirMensajes($req) {
 
         $mensaje = $comentario;
 
-        file_put_contents("log.txt", "[MENSAJES][DEBUG] Datos extraídos -> ID: $idMensaje, Comentario: $comentario, Número: $numero\n", FILE_APPEND);
+       // file_put_contents("log.txt", "[MENSAJES][DEBUG] Datos extraídos -> ID: $idMensaje, Comentario: $comentario, Número: $numero\n", FILE_APPEND);
 
         if (empty($comentario) || empty($numero) || empty($idMensaje)) {
             file_put_contents("log.txt", "[MENSAJES][DEBUG] Mensaje inválido o incompleto, saliendo...\n", FILE_APPEND);
             return;
         }
 
-        file_put_contents("log.txt", "[MENSAJES][DEBUG] Entrando a verificación de duplicados\n", FILE_APPEND);
+        //file_put_contents("log.txt", "[MENSAJES][DEBUG] Entrando a verificación de duplicados\n", FILE_APPEND);
 
         $conectar = new Conectar();
         $conexion = $conectar->conexion();
-        file_put_contents("log.txt", "[MENSAJES][DEBUG] Conexión a base de datos OK\n", FILE_APPEND);
+        //file_put_contents("log.txt", "[MENSAJES][DEBUG] Conexión a base de datos OK\n", FILE_APPEND);
 
         $stmt = $conexion->prepare("SELECT COUNT(*) FROM usuarios_final WHERE numero = ?");
         $stmt->execute([$numero]);
         $esRegistrado = $stmt->fetchColumn() > 0;
 
-        file_put_contents("log.txt", "[MENSAJES][DEBUG] Usuario registrado? " . ($esRegistrado ? "Sí" : "No") . "\n", FILE_APPEND);
+        //file_put_contents("log.txt", "[MENSAJES][DEBUG] Usuario registrado? " . ($esRegistrado ? "Sí" : "No") . "\n", FILE_APPEND);
 
         if ($esRegistrado) {
-            file_put_contents("log.txt", "[MENSAJES][DEBUG] Usuario registrado. Revisando si está en flujo...\n", FILE_APPEND);
+          //  file_put_contents("log.txt", "[MENSAJES][DEBUG] Usuario registrado. Revisando si está en flujo...\n", FILE_APPEND);
 
             $stmt = $conexion->prepare("SELECT * FROM usuarios_temp WHERE numero = ?");
             $stmt->execute([$numero]);
