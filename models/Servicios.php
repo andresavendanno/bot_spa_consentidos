@@ -8,6 +8,14 @@ class Servicios extends Conectar {
 
     public function manejar($mensaje, $usuario) {
         file_put_contents("log.txt", "[DEBUG][Servicios.php] Entró a manejar con paso: {$usuario['paso']}, mensaje: '{$mensaje}'\n", FILE_APPEND);
+        $reinicios = ['hola', 'buenas', 'hey', 'empezar', 'inicio'];
+        if (in_array(strtolower(trim($mensaje)), $reinicios)) {
+            $conectar = parent::conexion();
+            $reset = $conectar->prepare("DELETE FROM servicio_temp WHERE numero = :numero");
+            $reset->execute([':numero' => $usuario['numero']]);
+
+            return "🐾 ¡Hola de nuevo! ¿Con qué consentido deseas continuar?";
+        }
 
         $paso = $usuario['paso'];
         $consentido = $usuario['consentido'];
