@@ -130,6 +130,7 @@ function recibirMensajes($req) {
                 file_put_contents("logs/error.log", "[MENSAJES][ERROR][Registro] " . $e->getMessage() . " en línea " . $e->getLine() . PHP_EOL, FILE_APPEND);
             }
         }
+        file_put_contents("log.txt", "[MENSAJES][DEBUG] Respuesta generada para envío: " . print_r($respuesta, true) . "\n", FILE_APPEND);
 
         EnviarMensajeWhatsApp($respuesta, $numero);
 
