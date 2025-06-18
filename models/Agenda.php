@@ -94,6 +94,8 @@ function proponerTurnos($numero, $consentido) {
     file_put_contents("log.txt", "[AGENDA] Entrando a proponerTurnos para {$numero} / {$consentido}\n", FILE_APPEND);
 
     $turnos = obtenerTurnosDisponibles($numero, $consentido);
+    file_put_contents("log.txt", "[AGENDA] Turnos encontrados:\n" . print_r($turnos, true), FILE_APPEND);
+
     $mapaDias = [
         'Monday' => 'Lunes', 'Tuesday' => 'Martes', 'Wednesday' => 'Miércoles',
         'Thursday' => 'Jueves', 'Friday' => 'Viernes', 'Saturday' => 'Sábado', 'Sunday' => 'Domingo'
@@ -102,6 +104,11 @@ function proponerTurnos($numero, $consentido) {
 
     if (isset($turnos['error'])) {
         return "❌ Error al obtener turnos: " . $turnos['error'];
+    }
+    file_put_contents("log.txt", "[AGENDA]2 Turnos encontrados:\n" . print_r($turnos, true), FILE_APPEND);
+    
+    if (empty($turnos)) {
+        file_put_contents("log.txt", "[AGENDA] ⚠️ No se encontraron turnos disponibles para $consentido\n", FILE_APPEND);
     }
 
     if (count($turnos)) {
