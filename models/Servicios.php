@@ -86,7 +86,7 @@ class Servicios extends Conectar {
                 ':numero' => $numero
             ]);
 
-            return "✅ Servicio configurado. ¿Deseas confirmar el agendamiento para *$consentido*? (Sí / No)";
+            return proponerTurnos($numero, $consentido);
         }
 
             return "Selecciona una opción válida:
