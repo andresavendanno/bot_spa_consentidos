@@ -102,7 +102,7 @@ function proponerTurnos($numero, $consentido) {
         'Monday' => 'Lunes', 'Tuesday' => 'Martes', 'Wednesday' => 'Miércoles',
         'Thursday' => 'Jueves', 'Friday' => 'Viernes', 'Saturday' => 'Sábado', 'Sunday' => 'Domingo'
     ];
-    $diaNombre = $mapaDias[$fecha->format('l')];
+   // $diaNombre = $mapaDias[$fecha->format('l')];
 
     if (isset($turnos['error'])) {
         return "❌ Error al obtener turnos: " . $turnos['error'];
