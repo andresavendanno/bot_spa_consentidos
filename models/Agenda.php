@@ -41,6 +41,8 @@ function obtenerTurnosDisponibles($numero, $consentido, $limite = 2) {
         $stmtPrecio = $pdo->prepare("SELECT precio FROM precios WHERE servicio = :servicio AND size = :size AND forma_pago = 'efectivo' LIMIT 1");
         $stmtPrecio->execute([':servicio' => $servicio, ':size' => $size]);
         $precio = $stmtPrecio->fetchColumn();
+        file_put_contents("log.txt", "[AGENDA] Consultando precio para servicio='$servicio' y size='$size'\n", FILE_APPEND);
+
 
         for ($i = 0; $i < 7 && count($turnos) < $limite; $i++) {
             $fecha = clone $hoy;
