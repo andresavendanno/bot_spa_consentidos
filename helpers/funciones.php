@@ -1,6 +1,18 @@
 <?php
 require_once("config/conexion.php");
 require_once("config/constantes.php");
+// ✅ Noraliza modo de prueba, problema del 15 en AR
+function ajustarNumeroSandbox($numero) {
+    // Solo si es argentino (+54)
+    if (strpos($numero, '+54') === 0) {
+        // Si es Buenos Aires (11...) y NO tiene el 15, lo insertamos
+        if (preg_match('/^\+54911\d{8}$/', $numero)) {
+            // Inserta '15' después de +54911
+            return substr($numero, 0, 7) . '15' . substr($numero, 7);
+        }
+    }
+    return $numero;
+}
 
 // ✅ Verifica si un mensaje ya fue procesado
 function mensajeYaProcesado($id) {
@@ -31,6 +43,12 @@ function limpiarMensajesProcesados($max = 5000) {
 function EnviarMensajeWhatsApp($respuesta, $numero) {
    // file_put_contents("log.txt", "[FUNCIONES][DEBUG] Entrando a EnviarMensajeWhatsApp()\n", FILE_APPEND);
    // file_put_contents("log.txt", "[FUNCIONES][DEBUG] Contenido de respuesta: " . print_r($respuesta, true) . "\n", FILE_APPEND);
+
+    // Si estamos en sandbox, ajustar número argentino
+    if (defined('MODO_SANDBOX') && MODO_SANDBOX) {
+        $numero = ajustarNumeroSandbox($numero);
+    }
+
 
     if (!$respuesta) {
         file_put_contents("log.txt", "[FUNCIONES][DEBUG] Respuesta vacía, no se enviará nada.\n", FILE_APPEND);
@@ -73,8 +91,8 @@ function EnviarMensajeWhatsApp($respuesta, $numero) {
     $context = stream_context_create($options);
     $response = file_get_contents(WHATSAPP_URL, false, $context);
 
-    //file_put_contents("log.txt", "[FUNCIONES][DEBUG] Respuesta de WhatsApp API: $response\n", FILE_APPEND);
-    //file_put_contents("log.txt", "[FUNCIONES][" . date("Y-m-d H:i:s") . "] Mensaje enviado a $numero: " . print_r($data, true) . PHP_EOL, FILE_APPEND);
+    file_put_contents("log.txt", "[FUNCIONES][DEBUG] Respuesta de WhatsApp API: $response\n", FILE_APPEND);
+    file_put_contents("log.txt", "[FUNCIONES][" . date("Y-m-d H:i:s") . "] Mensaje enviado a $numero: " . print_r($data, true) . PHP_EOL, FILE_APPEND);
     // revisa todo el array que devuelve whatsapp
     //if ($http_response_header) {
     //    file_put_contents("log.txt", "[FUNCIONES][DEBUG] Encabezados HTTP: " . print_r($http_response_header, true) . "\n", FILE_APPEND);
