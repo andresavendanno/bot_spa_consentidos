@@ -173,7 +173,7 @@ function guardarTurnoSeleccionado($numero, $consentido, $opcion) {
         $pdo->prepare("UPDATE usuarios_temp SET paso = 0 WHERE numero = :numero")
             ->execute([':numero' => $numero]);
 
-        return "✅ ¡Listo! Turno reservado el *{$turno['fecha']}* a las *{$turno['hora']}* con *{$turno['peluquero']}* para *$consentido*.";
+        return "✅ ¡Listo! Turno para *$consentido* reservado el *{$turno['fecha']}* a las *{$turno['hora']}*.";
 
     } catch (PDOException $e) {
         return "❌ Error al guardar turno: " . $e->getMessage();
