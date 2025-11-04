@@ -12,7 +12,7 @@ function ajustarNumeroSandbox($numero) {
         if (preg_match('/^54911\d{8}$/', $numero)) {
             // Si NO tiene 15, lo agregamos: +54911 -> +5491115
             if (!preg_match('/^5491115\d{8}$/', $numero)) {
-                return substr($numero, 0, 5) . '15' . substr($numero, 5);
+                return substr($numero, 0, 2). substr($numero, 3, 2) . '15' . substr($numero, 5);
             }
         }
     }
