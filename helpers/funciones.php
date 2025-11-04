@@ -49,6 +49,8 @@ function EnviarMensajeWhatsApp($respuesta, $numero) {
         $numero = ajustarNumeroSandbox($numero);
     }
 
+    file_put_contents("log.txt", "[FUNCIONES][DEBUG] Enviando al numero de WhatsApp : $numero\n", FILE_APPEND);
+
 
     if (!$respuesta) {
         file_put_contents("log.txt", "[FUNCIONES][DEBUG] Respuesta vacía, no se enviará nada.\n", FILE_APPEND);
