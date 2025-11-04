@@ -4,11 +4,16 @@ require_once("config/constantes.php");
 // ✅ Noraliza modo de prueba, problema del 15 en AR
 function ajustarNumeroSandbox($numero) {
     // Solo si es argentino (+54)
-    if (strpos($numero, '+54') === 0) {
-        // Si es Buenos Aires (11...) y NO tiene el 15, lo insertamos
-        if (preg_match('/^\+54911\d{8}$/', $numero)) {
-            // Inserta '15' después de +54911
-            return substr($numero, 0, 7) . '15' . substr($numero, 7);
+        $prefijo = substr($numero, 0, 2);
+
+    // Si empieza con 54 (Argentina)
+    if ($prefijo === '54') {
+        // Buscamos si ya tiene el '15' después del 11
+        if (preg_match('/^54911\d{8}$/', $numero)) {
+            // Si NO tiene 15, lo agregamos: +54911 -> +5491115
+            if (!preg_match('/^5491115\d{8}$/', $numero)) {
+                return substr($numero, 0, 7) . '15' . substr($numero, 7);
+            }
         }
     }
     return $numero;
